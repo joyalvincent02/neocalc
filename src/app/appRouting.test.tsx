@@ -3,10 +3,16 @@ import userEvent from '@testing-library/user-event'
 import { RouterProvider, createMemoryRouter } from 'react-router-dom'
 import { routes } from './routes'
 import { DISCLAIMER_TEXT } from '../config/safetyMessages'
+import { ThemeProvider } from '../hooks/useTheme'
 
 function renderAt(path: string) {
+  window.localStorage.removeItem('neocalc.theme')
   const router = createMemoryRouter(routes, { initialEntries: [path] })
-  return render(<RouterProvider router={router} />)
+  return render(
+    <ThemeProvider>
+      <RouterProvider router={router} />
+    </ThemeProvider>,
+  )
 }
 
 describe('app routing + safety banner', () => {
@@ -34,6 +40,23 @@ describe('app routing + safety banner', () => {
       await screen.findByText(/Final instruction/i),
     ).toBeInTheDocument()
     expect(screen.getByText(/Per 100 mL burette/i)).toBeInTheDocument()
+  })
+
+  it('cycles theme and toggles root dark class', async () => {
+    const user = userEvent.setup()
+    renderAt('/additives')
+
+    const root = document.documentElement
+    const toggle = screen.getByRole('button', { name: /theme:/i })
+
+    // With our test setup: system=light initially, and cycle is system -> dark -> system -> dark ...
+    expect(root.classList.contains('dark')).toBe(false)
+
+    await user.click(toggle) // system -> dark
+    expect(root.classList.contains('dark')).toBe(true)
+
+    await user.click(toggle) // dark -> system (system light)
+    expect(root.classList.contains('dark')).toBe(false)
   })
 })
 

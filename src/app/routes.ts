@@ -1,5 +1,6 @@
 import { createElement } from 'react'
 import type { RouteObject } from 'react-router-dom'
+import { DashboardPage } from '../features/dashboard/DashboardPage'
 import { AdditiveCalculatorPage } from '../features/additive-calculator/AdditiveCalculatorPage'
 import { CombinedBurettePage } from '../features/combined-burette/CombinedBurettePage'
 import { GlucoseCalculatorPage } from '../features/glucose-calculator/GlucoseCalculatorPage'
@@ -7,7 +8,7 @@ import { GlucoseCalculatorPage } from '../features/glucose-calculator/GlucoseCal
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: createElement(AdditiveCalculatorPage),
+    element: createElement(DashboardPage),
   },
   {
     path: '/additives',
@@ -22,4 +23,3 @@ export const routes: RouteObject[] = [
     element: createElement(CombinedBurettePage),
   },
 ]
-

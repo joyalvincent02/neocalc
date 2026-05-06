@@ -1,4 +1,6 @@
-import { FieldError } from './FieldError'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
+import { cn } from '@/lib/utils'
 
 export function NumberField({
   label,
@@ -18,20 +20,21 @@ export function NumberField({
   error?: string
 }) {
   return (
-    <label className="block">
-      <div className="text-sm font-medium">{label}</div>
-      <input
+    <div className="flex flex-col gap-1.5">
+      <Label className={cn(error && 'text-destructive')}>{label}</Label>
+      <Input
         type="number"
         inputMode="decimal"
-        className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:focus:border-zinc-400 dark:focus:ring-zinc-800"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
         step={step}
         min={min}
+        className={cn(error && 'border-destructive focus-visible:ring-destructive/30')}
       />
-      <FieldError message={error} />
-    </label>
+      {error ? (
+        <p className="text-xs text-destructive">{error}</p>
+      ) : null}
+    </div>
   )
 }
-

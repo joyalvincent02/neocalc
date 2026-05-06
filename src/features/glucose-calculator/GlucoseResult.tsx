@@ -2,9 +2,11 @@ import { CalculationBreakdown } from '../../components/results/CalculationBreakd
 import { InputSummary } from '../../components/results/InputSummary'
 import { ResultCard } from '../../components/results/ResultCard'
 import { WarningList } from '../../components/results/WarningList'
+import { ErrorAlert } from '../../components/results/ErrorAlert'
 import { roundDecimalToString } from '../../calculations/shared/rounding'
 import type { GlucoseCalculatorResult } from '../../calculations/glucose/glucoseTypes'
 import type { GlucoseFormValues } from './glucoseFormSchema'
+import { computeTargetGlucosePercentFromGir } from '../../calculations/glucose/gir'
 
 export function GlucoseResult({
   input,
@@ -17,29 +19,33 @@ export function GlucoseResult({
 }) {
   if (!result.ok) {
     return (
-      <ResultCard title="Cannot calculate">
+      <ResultCard title="Cannot Calculate">
         <WarningList warnings={result.warnings} />
-        <div className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-900 dark:border-red-900 dark:bg-red-950/40 dark:text-red-100">
-          <div className="font-semibold">Errors</div>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            {result.errors.map((e, idx) => (
-              <li key={idx}>
-                <span className="font-medium">{e.path}:</span> {e.message}
-              </li>
-            ))}
-          </ul>
-        </div>
+        <ErrorAlert errors={result.errors} />
       </ResultCard>
     )
   }
 
   const e = result.exact
+  const computedTarget = computeTargetGlucosePercentFromGir({
+    patientWeightKg: input.patientWeightKg,
+    infusionRateMlPerHour: input.infusionRateMlPerHour,
+    targetGirMgPerKgMin: input.targetGirMgPerKgMin,
+  })
 
   return (
     <div className="space-y-4">
       <InputSummary
         items={[
-          { label: 'Target', value: `${input.targetGlucosePercent}%` },
+          { label: 'Weight', value: `${input.patientWeightKg.toFixed(3)} kg` },
+          { label: 'Infusion rate', value: `${input.infusionRateMlPerHour} mL/hr` },
+          { label: 'Target GIR', value: `${input.targetGirMgPerKgMin} mg/kg/min` },
+          {
+            label: 'Computed target glucose',
+            value: computedTarget.ok
+              ? `${computedTarget.targetGlucosePercent.toFixed(2)}%`
+              : 'Invalid',
+          },
           { label: 'Base', value: `${input.baseGlucosePercent}%` },
           { label: 'Additive', value: `${input.additiveGlucosePercent}%` },
           { label: 'Burette size', value: `${input.buretteSizeMl} mL` },
@@ -53,26 +59,24 @@ export function GlucoseResult({
       <WarningList warnings={result.warnings} />
 
       <ResultCard title="Result">
-        <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm dark:border-zinc-800 dark:bg-zinc-900/30">
-          <div className="font-semibold">Final instruction</div>
-          <div className="mt-2 whitespace-pre-wrap">{result.finalInstruction}</div>
+        <div className="rounded-md border border-primary/20 bg-primary/5 p-3 text-sm">
+          <div className="font-semibold text-primary">Final Instruction</div>
+          <div className="mt-2 whitespace-pre-wrap text-foreground">{result.finalInstruction}</div>
         </div>
 
-        <div className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <div className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-xs text-zinc-600 dark:text-zinc-300">
-              Available volume
-            </div>
-            <div className="mt-1 font-semibold">
-              {roundDecimalToString(e.availableVolumeMl, { dp: roundingDp })} mL
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="rounded-md border border-border bg-background p-3">
+            <div className="text-xs text-muted-foreground">Available volume</div>
+            <div className="mt-1 text-lg font-bold text-foreground">
+              {roundDecimalToString(e.availableVolumeMl, { dp: roundingDp })}
+              <span className="ml-1 text-xs font-normal text-muted-foreground">mL</span>
             </div>
           </div>
-          <div className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
-            <div className="text-xs text-zinc-600 dark:text-zinc-300">
-              Final concentration check
-            </div>
-            <div className="mt-1 font-semibold">
-              {roundDecimalToString(e.finalConcentrationCheckPercent, { dp: roundingDp })}%
+          <div className="rounded-md border border-border bg-background p-3">
+            <div className="text-xs text-muted-foreground">Final concentration</div>
+            <div className="mt-1 text-lg font-bold text-primary">
+              {roundDecimalToString(e.finalConcentrationCheckPercent, { dp: roundingDp })}
+              <span className="ml-1 text-xs font-normal text-muted-foreground">%</span>
             </div>
           </div>
         </div>
@@ -82,4 +86,3 @@ export function GlucoseResult({
     </div>
   )
 }
-

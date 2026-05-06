@@ -1,22 +1,31 @@
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+
 export function InputSummary({
-  title = 'Inputs',
+  title = 'Inputs Used',
   items,
 }: {
   title?: string
   items: { label: string; value: string }[]
 }) {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
-      <div className="text-sm font-semibold">{title}</div>
-      <dl className="mt-2 grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-        {items.map((i) => (
-          <div key={i.label} className="flex items-baseline justify-between gap-3">
-            <dt className="text-zinc-600 dark:text-zinc-300">{i.label}</dt>
-            <dd className="font-medium">{i.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </div>
+    <Card className="bg-muted/40">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+          {title}
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <Separator className="mb-3" />
+        <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3">
+          {items.map((i) => (
+            <div key={i.label} className="flex flex-col gap-0.5">
+              <dt className="text-xs text-muted-foreground">{i.label}</dt>
+              <dd className="font-medium text-foreground">{i.value}</dd>
+            </div>
+          ))}
+        </dl>
+      </CardContent>
+    </Card>
   )
 }
-

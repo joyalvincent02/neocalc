@@ -1,19 +1,44 @@
 import type { ReactNode } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import { DISCLAIMER_TEXT } from '../../config/safetyMessages'
-import { Header } from './Header'
+import { DesktopSidebar, MobileSidebar } from './Sidebar'
+import { ThemeToggle } from './ThemeToggle'
 
 export function AppLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-dvh bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100">
-      <div className="border-b border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950 dark:border-amber-900 dark:bg-amber-950/40 dark:text-amber-100">
-        <div className="mx-auto w-full max-w-3xl">
-          <div className="font-semibold">Disclaimer</div>
-          <div className="mt-1 leading-snug">{DISCLAIMER_TEXT}</div>
+    <div className="min-h-dvh bg-background text-foreground">
+      <DesktopSidebar />
+
+      {/* Main content area — offset for desktop sidebar */}
+      <div className="lg:pl-60 flex flex-col min-h-dvh">
+        {/* Mobile top bar */}
+        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/80 backdrop-blur px-4 py-3">
+          <MobileSidebar />
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-bold text-foreground">NeoCalc</div>
+          </div>
+          <ThemeToggle />
+        </header>
+
+        {/* Disclaimer banner */}
+        <div className="border-b border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-foreground">
+          <div className="mx-auto w-full max-w-4xl flex items-start gap-2">
+            <AlertTriangle
+              className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+              aria-hidden="true"
+            />
+            <span>
+              <span className="font-semibold text-warning">Disclaimer: </span>
+              {DISCLAIMER_TEXT}
+            </span>
+          </div>
         </div>
+
+        {/* Page content */}
+        <main className="flex-1 px-4 py-6 mx-auto w-full max-w-4xl">
+          {children}
+        </main>
       </div>
-      <Header />
-      <div className="mx-auto w-full max-w-3xl px-4 py-4">{children}</div>
     </div>
   )
 }
-

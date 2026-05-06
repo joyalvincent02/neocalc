@@ -4,6 +4,9 @@ import { DEFAULT_PROTOCOL } from '../../config/defaultProtocol'
 import { ELECTROLYTE_PRESETS } from '../../config/electrolytePresets'
 import { NumberField } from '../../components/forms/NumberField'
 import { SelectField } from '../../components/forms/SelectField'
+import { Button } from '@/components/ui/button'
+import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import {
   additiveFormSchema,
   type AdditiveFormInput,
@@ -135,25 +138,17 @@ export function AdditiveCalculatorForm({
         />
       </div>
 
-      <label className="block">
-        <div className="text-sm font-medium">Base fluid name</div>
-        <input
-          className="mt-1 w-full rounded-md border border-zinc-300 bg-white px-3 py-2 text-sm shadow-sm outline-none focus:border-zinc-500 focus:ring-2 focus:ring-zinc-200 dark:border-zinc-700 dark:bg-zinc-950 dark:focus:border-zinc-400 dark:focus:ring-zinc-800"
-          {...register('baseFluidName')}
-        />
+      <div className="flex flex-col gap-1.5">
+        <Label>Base fluid name</Label>
+        <Input {...register('baseFluidName')} />
         {errors.baseFluidName?.message ? (
-          <div className="mt-1 text-xs text-red-600 dark:text-red-400">
-            {errors.baseFluidName.message}
-          </div>
+          <p className="text-xs text-destructive">{errors.baseFluidName.message}</p>
         ) : null}
-      </label>
+      </div>
 
-      <button
-        type="submit"
-        className="w-full rounded-md bg-zinc-900 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-200"
-      >
+      <Button type="submit" className="w-full">
         Calculate
-      </button>
+      </Button>
     </form>
   )
 }
