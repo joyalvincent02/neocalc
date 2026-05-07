@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Controller, useForm } from 'react-hook-form'
-import { DEFAULT_PROTOCOL } from '../../config/defaultProtocol'
 import { GLUCOSE_PRESETS } from '../../config/glucosePresets'
 import { NumberField } from '../../components/forms/NumberField'
 import { SelectField } from '../../components/forms/SelectField'
@@ -10,6 +9,7 @@ import {
   type GlucoseFormInput,
   type GlucoseFormValues,
 } from './glucoseFormSchema'
+import { DEFAULT_PROTOCOL } from '../../config/defaultProtocol'
 
 export function GlucoseCalculatorForm({
   defaultValues,
@@ -21,9 +21,7 @@ export function GlucoseCalculatorForm({
   const form = useForm<GlucoseFormInput, unknown, GlucoseFormValues>({
     resolver: zodResolver(glucoseFormSchema),
     defaultValues: {
-      patientWeightKg: 2.5,
-      infusionRateMlPerHour: 12.5,
-      targetGirMgPerKgMin: 10,
+      targetGlucosePercent: 10,
       baseGlucosePercent: 10,
       additiveGlucosePercent: 50,
       buretteSizeMl: 100,
@@ -44,43 +42,15 @@ export function GlucoseCalculatorForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <Controller
           control={control}
-          name="patientWeightKg"
+          name="targetGlucosePercent"
           render={({ field }) => (
             <NumberField
-              label="Patient weight (kg)"
-              value={String(field.value ?? '')}
-              onChange={field.onChange}
-              step={0.001}
-              min={DEFAULT_PROTOCOL.ranges.weightKg.min}
-              error={errors.patientWeightKg?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="infusionRateMlPerHour"
-          render={({ field }) => (
-            <NumberField
-              label="Infusion rate (mL/hr)"
-              value={String(field.value ?? '')}
-              onChange={field.onChange}
-              step={0.01}
-              min={DEFAULT_PROTOCOL.ranges.maintenanceRateMlPerHour.min}
-              error={errors.infusionRateMlPerHour?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="targetGirMgPerKgMin"
-          render={({ field }) => (
-            <NumberField
-              label="Target GIR (mg/kg/min)"
+              label="Target Glucose %"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.1}
               min={0.1}
-              error={errors.targetGirMgPerKgMin?.message}
+              error={errors.targetGlucosePercent?.message}
             />
           )}
         />
@@ -154,4 +124,3 @@ export function GlucoseCalculatorForm({
     </form>
   )
 }
-

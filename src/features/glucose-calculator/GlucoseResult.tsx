@@ -6,7 +6,6 @@ import { ErrorAlert } from '../../components/results/ErrorAlert'
 import { roundDecimalToString } from '../../calculations/shared/rounding'
 import type { GlucoseCalculatorResult } from '../../calculations/glucose/glucoseTypes'
 import type { GlucoseFormValues } from './glucoseFormSchema'
-import { computeTargetGlucosePercentFromGir } from '../../calculations/glucose/gir'
 
 export function GlucoseResult({
   input,
@@ -27,25 +26,12 @@ export function GlucoseResult({
   }
 
   const e = result.exact
-  const computedTarget = computeTargetGlucosePercentFromGir({
-    patientWeightKg: input.patientWeightKg,
-    infusionRateMlPerHour: input.infusionRateMlPerHour,
-    targetGirMgPerKgMin: input.targetGirMgPerKgMin,
-  })
 
   return (
     <div className="space-y-4">
       <InputSummary
         items={[
-          { label: 'Weight', value: `${input.patientWeightKg.toFixed(3)} kg` },
-          { label: 'Infusion rate', value: `${input.infusionRateMlPerHour} mL/hr` },
-          { label: 'Target GIR', value: `${input.targetGirMgPerKgMin} mg/kg/min` },
-          {
-            label: 'Computed target glucose',
-            value: computedTarget.ok
-              ? `${computedTarget.targetGlucosePercent.toFixed(2)}%`
-              : 'Invalid',
-          },
+          { label: 'Target Glucose', value: `${input.targetGlucosePercent}%` },
           { label: 'Base', value: `${input.baseGlucosePercent}%` },
           { label: 'Additive', value: `${input.additiveGlucosePercent}%` },
           { label: 'Burette size', value: `${input.buretteSizeMl} mL` },

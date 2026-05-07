@@ -1,5 +1,5 @@
 export const DEFAULT_PROTOCOL = {
-  roundingDp: 2,
+  roundingDp: 4,
   buretteSizesMl: [50, 100],
   // Broad guardrails for v1 validation (UI schemas enforce these).
   ranges: {

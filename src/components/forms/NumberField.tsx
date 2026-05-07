@@ -10,6 +10,7 @@ export function NumberField({
   step,
   min,
   error,
+  disabled,
 }: {
   label: string
   value: string
@@ -18,9 +19,10 @@ export function NumberField({
   step?: number
   min?: number
   error?: string
+  disabled?: boolean
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <div className={cn('flex flex-col gap-1.5', disabled && 'opacity-40')}>
       <Label className={cn(error && 'text-destructive')}>{label}</Label>
       <Input
         type="number"
@@ -30,6 +32,7 @@ export function NumberField({
         placeholder={placeholder}
         step={step}
         min={min}
+        disabled={disabled}
         className={cn(error && 'border-destructive focus-visible:ring-destructive/30')}
       />
       {error ? (

@@ -1,10 +1,6 @@
 import { AppLayout } from '../../components/layout/AppLayout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { calculateGlucoseStrengthening } from '../../calculations/glucose/glucoseCalculator'
-import {
-  computeGirFromGlucosePercent,
-  computeTargetGlucosePercentFromGir,
-} from '../../calculations/glucose/gir'
 import { useCalculationResult } from '../../hooks/useCalculationResult'
 import { useRoundingPrecision } from '../../hooks/useRoundingPrecision'
 import { RoundingControl } from '../../components/forms/RoundingControl'
@@ -19,26 +15,17 @@ export function GlucoseCalculatorPage() {
     GlucoseFormValues,
     GlucoseCalculatorResult
   >((values) => {
-    const target = computeTargetGlucosePercentFromGir({
-      patientWeightKg: values.patientWeightKg,
-      infusionRateMlPerHour: values.infusionRateMlPerHour,
-      targetGirMgPerKgMin: values.targetGirMgPerKgMin,
-    })
+    const warnings: string[] = []
 
-    if (!target.ok) {
-      return {
-        ok: false,
-        errors: target.errors.map((e) => ({
-          path: `gir.${e.path}`,
-          message: e.message,
-        })),
-        warnings: [],
-      }
+    if (values.targetGlucosePercent > 12.5) {
+      warnings.push(
+        `Target glucose is ${values.targetGlucosePercent.toFixed(2)}%. This may exceed common peripheral dextrose limits (often 12.5%); verify local policy and line type.`,
+      )
     }
 
     const engine = calculateGlucoseStrengthening(
       {
-        targetGlucosePercent: target.targetGlucosePercent,
+        targetGlucosePercent: values.targetGlucosePercent,
         baseGlucosePercent: values.baseGlucosePercent,
         additiveGlucosePercent: values.additiveGlucosePercent,
         buretteSizeMl: values.buretteSizeMl,
@@ -47,43 +34,8 @@ export function GlucoseCalculatorPage() {
       dp,
     )
 
-    const warnings: string[] = []
-    if (target.targetGlucosePercent > 12.5) {
-      warnings.push(
-        `Computed target glucose is ${target.targetGlucosePercent.toFixed(
-          2,
-        )}%. This may exceed common peripheral dextrose limits (often 12.5%); verify local policy and line type.`,
-      )
-    }
-    const girCheck = computeGirFromGlucosePercent({
-      patientWeightKg: values.patientWeightKg,
-      infusionRateMlPerHour: values.infusionRateMlPerHour,
-      glucosePercent: target.targetGlucosePercent,
-    })
-    if (girCheck.ok) {
-      if (girCheck.girMgPerKgMin < 3 || girCheck.girMgPerKgMin > 12) {
-        warnings.push(
-          `Computed GIR is ${girCheck.girMgPerKgMin.toFixed(
-            2,
-          )} mg/kg/min. Verify appropriateness and local policy.`,
-        )
-      }
-    }
-
     if (!engine.ok) {
-      return {
-        ...engine,
-        warnings: [...warnings, ...engine.warnings],
-        errors: [
-          ...engine.errors,
-          {
-            path: 'computedTargetGlucosePercent',
-            message: `Computed target glucose is ${target.targetGlucosePercent.toFixed(
-              2,
-            )}% from GIR/weight/rate.`,
-          },
-        ],
-      }
+      return { ...engine, warnings: [...warnings, ...engine.warnings] }
     }
 
     return { ...engine, warnings: [...warnings, ...engine.warnings] }
@@ -107,7 +59,7 @@ export function GlucoseCalculatorPage() {
               <div>
                 <CardTitle className="text-sm">Parameters</CardTitle>
                 <CardDescription className="text-xs mt-0.5">
-                  Enter patient and fluid details below
+                  Enter fluid details below
                 </CardDescription>
               </div>
               <RoundingControl value={dp} onChange={setDp} />

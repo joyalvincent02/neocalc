@@ -14,9 +14,6 @@ import type {
   GlucoseCalculatorResult,
 } from './glucoseTypes'
 
-function percentToGramsPerMl(percent: number) {
-  return d(percent).div(100)
-}
 
 export function calculateGlucoseStrengthening(
   input: GlucoseCalculatorInput,
@@ -114,62 +111,135 @@ export function calculateGlucoseStrengthening(
     }
   }
 
+  // Step 1: Available mixing volume after electrolyte/additive displacement.
   const availableVolumeMl = burette.sub(reserved)
 
-  const target = percentToGramsPerMl(targetGlucosePercent!)
-  const base = percentToGramsPerMl(baseGlucosePercent!)
-  const additive = percentToGramsPerMl(additiveGlucosePercent!)
+  // Step 2: Target glucose expressed as grams per 100 mL (numerically equal to the % value).
+  const targetGramsPer100ml = targetPct
 
-  const additiveGlucoseVolumeMl = availableVolumeMl
-    .mul(target.sub(base))
-    .div(additive.sub(base))
-  const baseGlucoseVolumeMl = availableVolumeMl.sub(additiveGlucoseVolumeMl)
+  // Step 3: Required g/mL in the available mixing volume.
+  // Dividing by availableVolumeMl (not buretteSize) scales the concentration upward
+  // so that the completed burette (including reserved volume) delivers the target %.
+  const requiredGramsPerMl = targetGramsPer100ml.div(availableVolumeMl)
+
+  // Step 4: Convert stock concentrations to g/mL.
+  const baseGPerMl = basePct.div(100)
+  const additiveGPerMl = additivePct.div(100)
+
+  // Step 5: Quotas (proportional pull from each stock towards the required concentration).
+  const additiveQuota = requiredGramsPerMl.sub(baseGPerMl)
+  const baseQuota = additiveGPerMl.sub(requiredGramsPerMl)
+
+  // Step 6: Total quota.
+  const totalQuota = additiveQuota.add(baseQuota)
+
+  // Step 7: Volume ratios.
+  const additiveRatio = additiveQuota.div(totalQuota)
+  const baseRatio = baseQuota.div(totalQuota)
+
+  // Step 8: Final volumes.
+  const additiveGlucoseVolumeMl = additiveRatio.mul(availableVolumeMl)
+  const baseGlucoseVolumeMl = baseRatio.mul(availableVolumeMl)
 
   requireDecimalNonNegative('availableVolumeMl', availableVolumeMl, errors)
-  requireDecimalNonNegative(
-    'additiveGlucoseVolumeMl',
-    additiveGlucoseVolumeMl,
-    errors,
-  )
+  requireDecimalNonNegative('additiveGlucoseVolumeMl', additiveGlucoseVolumeMl, errors)
   requireDecimalNonNegative('baseGlucoseVolumeMl', baseGlucoseVolumeMl, errors)
 
   if (errors.length > 0) return { ok: false, errors, warnings }
 
-  // Concentration check: weighted average.
-  const finalConcGPerMl = baseGlucoseVolumeMl
-    .mul(base)
-    .add(additiveGlucoseVolumeMl.mul(additive))
-    .div(availableVolumeMl)
-  const finalConcentrationCheckPercent = finalConcGPerMl.mul(100)
+  // Final concentration check over the complete burette (including reserved volume).
+  const totalGlucoseGrams = baseGlucoseVolumeMl
+    .mul(baseGPerMl)
+    .add(additiveGlucoseVolumeMl.mul(additiveGPerMl))
+  const finalConcentrationCheckPercent = totalGlucoseGrams.div(burette).mul(100)
 
   const breakdownSteps: BreakdownStep[] = [
     {
-      label: 'Available volume (mL)',
+      label: 'Step 1 — Available mixing volume',
       formula: 'buretteSizeMl − reservedAdditiveVolumeMl',
       substitution: `${burette.toString()} − ${reserved.toString()}`,
       exact: availableVolumeMl,
       unit: 'mL',
     },
     {
-      label: 'Additive glucose volume (mL)',
-      formula:
-        '(availableVolume × (target − base)) ÷ (additive − base)  [all in g/mL]',
-      substitution: `(${availableVolumeMl.toString()} × (${target.toString()} − ${base.toString()})) ÷ (${additive.toString()} − ${base.toString()})`,
+      label: 'Step 2 — Target glucose (g per 100 mL)',
+      formula: 'targetGlucosePercent  [g per 100 mL]',
+      substitution: `${targetGramsPer100ml.toString()} g / 100 mL`,
+      exact: targetGramsPer100ml,
+      unit: 'g / 100 mL',
+    },
+    {
+      label: 'Step 3 — Required concentration in available volume',
+      formula: 'targetGramsPer100mL ÷ availableVolumeMl',
+      substitution: `${targetGramsPer100ml.toString()} ÷ ${availableVolumeMl.toString()}`,
+      exact: requiredGramsPerMl,
+      unit: 'g / mL',
+    },
+    {
+      label: `Step 4a — Base stock (${baseGlucosePercent}%) in g/mL`,
+      formula: 'baseGlucosePercent ÷ 100',
+      substitution: `${basePct.toString()} ÷ 100`,
+      exact: baseGPerMl,
+      unit: 'g / mL',
+    },
+    {
+      label: `Step 4b — Additive stock (${additiveGlucosePercent}%) in g/mL`,
+      formula: 'additiveGlucosePercent ÷ 100',
+      substitution: `${additivePct.toString()} ÷ 100`,
+      exact: additiveGPerMl,
+      unit: 'g / mL',
+    },
+    {
+      label: `Step 5a — Additive quota (${additiveGlucosePercent}% side)`,
+      formula: 'requiredGramsPerMl − baseGPerMl',
+      substitution: `${requiredGramsPerMl.toString()} − ${baseGPerMl.toString()}`,
+      exact: additiveQuota,
+      unit: 'g / mL',
+    },
+    {
+      label: `Step 5b — Base quota (${baseGlucosePercent}% side)`,
+      formula: 'additiveGPerMl − requiredGramsPerMl',
+      substitution: `${additiveGPerMl.toString()} − ${requiredGramsPerMl.toString()}`,
+      exact: baseQuota,
+      unit: 'g / mL',
+    },
+    {
+      label: 'Step 6 — Total quota',
+      formula: 'additiveQuota + baseQuota',
+      substitution: `${additiveQuota.toString()} + ${baseQuota.toString()}`,
+      exact: totalQuota,
+      unit: 'g / mL',
+    },
+    {
+      label: `Step 7a — Additive ratio (${additiveGlucosePercent}%)`,
+      formula: 'additiveQuota ÷ totalQuota',
+      substitution: `${additiveQuota.toString()} ÷ ${totalQuota.toString()}`,
+      exact: additiveRatio,
+    },
+    {
+      label: `Step 7b — Base ratio (${baseGlucosePercent}%)`,
+      formula: 'baseQuota ÷ totalQuota',
+      substitution: `${baseQuota.toString()} ÷ ${totalQuota.toString()}`,
+      exact: baseRatio,
+    },
+    {
+      label: `Step 8a — Additive volume (${additiveGlucosePercent}%)`,
+      formula: 'additiveRatio × availableVolumeMl',
+      substitution: `${additiveRatio.toString()} × ${availableVolumeMl.toString()}`,
       exact: additiveGlucoseVolumeMl,
       unit: 'mL',
     },
     {
-      label: 'Base glucose volume (mL)',
-      formula: 'availableVolume − additiveVolume',
-      substitution: `${availableVolumeMl.toString()} − ${additiveGlucoseVolumeMl.toString()}`,
+      label: `Step 8b — Base volume (${baseGlucosePercent}%)`,
+      formula: 'baseRatio × availableVolumeMl',
+      substitution: `${baseRatio.toString()} × ${availableVolumeMl.toString()}`,
       exact: baseGlucoseVolumeMl,
       unit: 'mL',
     },
     {
-      label: 'Final concentration check (%)',
-      formula:
-        '((baseVol×baseConc)+(addVol×addConc)) ÷ availableVol  [convert to %]',
-      substitution: 'weighted average',
+      label: 'Final concentration check (full burette)',
+      formula: '(addVol × addGPerMl + baseVol × baseGPerMl) ÷ buretteSizeMl × 100',
+      substitution: `(${roundDecimalToString(additiveGlucoseVolumeMl, { dp: roundingDp })} × ${additiveGPerMl.toString()} + ${roundDecimalToString(baseGlucoseVolumeMl, { dp: roundingDp })} × ${baseGPerMl.toString()}) ÷ ${burette.toString()} × 100`,
       exact: finalConcentrationCheckPercent,
       unit: '%',
     },

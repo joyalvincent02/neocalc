@@ -11,6 +11,44 @@ import {
   type CombinedFormValues,
 } from './combinedFormSchema'
 
+function SectionHeading({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="col-span-full pt-1 pb-0.5 border-b border-border">
+      <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        {children}
+      </span>
+    </div>
+  )
+}
+
+function ToggleRow({
+  label,
+  checked,
+  onChange,
+}: {
+  label: string
+  checked: boolean
+  onChange: (v: boolean) => void
+}) {
+  return (
+    <div className="col-span-full flex items-center gap-2">
+      <input
+        type="checkbox"
+        id={`toggle-${label}`}
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+      />
+      <label
+        htmlFor={`toggle-${label}`}
+        className="text-sm font-medium text-foreground cursor-pointer select-none"
+      >
+        {label}
+      </label>
+    </div>
+  )
+}
+
 export function CombinedBuretteForm({
   defaultValues,
   onSubmit,
@@ -21,13 +59,17 @@ export function CombinedBuretteForm({
   const form = useForm<CombinedFormInput, unknown, CombinedFormValues>({
     resolver: zodResolver(combinedFormSchema),
     defaultValues: {
-      buretteSizeMl: 100,
       patientWeightKg: 2.5,
-      infusionRateMlPerHour: 12.5,
-      targetGirMgPerKgMin: 10,
-      sodiumChlorideMl: 0,
-      potassiumChlorideMl: 0,
-      calciumGluconateMl: 0,
+      maintenanceRateMlPerHour: 12.5,
+      buretteSizeMl: 100,
+      sodiumEnabled: true,
+      sodiumRequirementMmolPerKgPerDay: 3,
+      sodiumStockStrengthMmolPerMl: 0.9,
+      potassiumEnabled: true,
+      potassiumRequirementMmolPerKgPerDay: 2,
+      potassiumStockStrengthMmolPerMl: 0.6,
+      calciumGluconateMlPerBurette: 0,
+      targetGlucosePercent: 10,
       baseGlucosePercent: 10,
       additiveGlucosePercent: 50,
       ...defaultValues,
@@ -38,28 +80,19 @@ export function CombinedBuretteForm({
   const {
     control,
     handleSubmit,
+    watch,
     formState: { errors },
   } = form
+
+  const sodiumEnabled = watch('sodiumEnabled')
+  const potassiumEnabled = watch('potassiumEnabled')
 
   return (
     <form className="space-y-4" onSubmit={handleSubmit((v) => onSubmit(v))}>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <Controller
-          control={control}
-          name="buretteSizeMl"
-          render={({ field }) => (
-            <SelectField
-              label="Burette size (mL)"
-              value={String(field.value)}
-              onChange={field.onChange}
-              options={DEFAULT_PROTOCOL.buretteSizesMl.map((n) => ({
-                value: String(n),
-                label: `${n} mL`,
-              }))}
-              error={errors.buretteSizeMl?.message}
-            />
-          )}
-        />
+
+        <SectionHeading>Patient &amp; Fluid</SectionHeading>
+
         <Controller
           control={control}
           name="patientWeightKg"
@@ -76,71 +109,150 @@ export function CombinedBuretteForm({
         />
         <Controller
           control={control}
-          name="infusionRateMlPerHour"
+          name="maintenanceRateMlPerHour"
           render={({ field }) => (
             <NumberField
-              label="Infusion rate (mL/hr)"
+              label="Maintenance rate (mL/hr)"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.01}
               min={DEFAULT_PROTOCOL.ranges.maintenanceRateMlPerHour.min}
-              error={errors.infusionRateMlPerHour?.message}
+              error={errors.maintenanceRateMlPerHour?.message}
             />
           )}
         />
         <Controller
           control={control}
-          name="targetGirMgPerKgMin"
+          name="buretteSizeMl"
+          render={({ field }) => (
+            <SelectField
+              label="Burette size (mL)"
+              value={String(field.value)}
+              onChange={field.onChange}
+              options={DEFAULT_PROTOCOL.buretteSizesMl.map((n) => ({
+                value: String(n),
+                label: `${n} mL`,
+              }))}
+              error={errors.buretteSizeMl?.message}
+            />
+          )}
+        />
+
+        <SectionHeading>Sodium</SectionHeading>
+
+        <Controller
+          control={control}
+          name="sodiumEnabled"
+          render={({ field }) => (
+            <ToggleRow
+              label="Include sodium"
+              checked={field.value}
+              onChange={field.onChange}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="sodiumRequirementMmolPerKgPerDay"
           render={({ field }) => (
             <NumberField
-              label="Target GIR (mg/kg/min)"
+              label="Na requirement (mmol/kg/day)"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.1}
               min={0.1}
-              error={errors.targetGirMgPerKgMin?.message}
+              disabled={!sodiumEnabled}
+              error={sodiumEnabled ? errors.sodiumRequirementMmolPerKgPerDay?.message : undefined}
             />
           )}
         />
         <Controller
           control={control}
-          name="sodiumChlorideMl"
+          name="sodiumStockStrengthMmolPerMl"
           render={({ field }) => (
             <NumberField
-              label="Sodium chloride reserved (mL)"
+              label="Na stock strength (mmol/mL)"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.01}
-              min={0}
-              error={errors.sodiumChlorideMl?.message}
+              min={0.01}
+              disabled={!sodiumEnabled}
+              error={sodiumEnabled ? errors.sodiumStockStrengthMmolPerMl?.message : undefined}
+            />
+          )}
+        />
+
+        <SectionHeading>Potassium</SectionHeading>
+
+        <Controller
+          control={control}
+          name="potassiumEnabled"
+          render={({ field }) => (
+            <ToggleRow
+              label="Include potassium"
+              checked={field.value}
+              onChange={field.onChange}
             />
           )}
         />
         <Controller
           control={control}
-          name="potassiumChlorideMl"
+          name="potassiumRequirementMmolPerKgPerDay"
           render={({ field }) => (
             <NumberField
-              label="Potassium chloride reserved (mL)"
+              label="K requirement (mmol/kg/day)"
               value={String(field.value ?? '')}
               onChange={field.onChange}
-              step={0.01}
-              min={0}
-              error={errors.potassiumChlorideMl?.message}
+              step={0.1}
+              min={0.1}
+              disabled={!potassiumEnabled}
+              error={potassiumEnabled ? errors.potassiumRequirementMmolPerKgPerDay?.message : undefined}
             />
           )}
         />
         <Controller
           control={control}
-          name="calciumGluconateMl"
+          name="potassiumStockStrengthMmolPerMl"
           render={({ field }) => (
             <NumberField
-              label="Calcium gluconate reserved (mL)"
+              label="K stock strength (mmol/mL)"
+              value={String(field.value ?? '')}
+              onChange={field.onChange}
+              step={0.01}
+              min={0.01}
+              disabled={!potassiumEnabled}
+              error={potassiumEnabled ? errors.potassiumStockStrengthMmolPerMl?.message : undefined}
+            />
+          )}
+        />
+
+        <SectionHeading>Calcium &amp; Glucose</SectionHeading>
+
+        <Controller
+          control={control}
+          name="calciumGluconateMlPerBurette"
+          render={({ field }) => (
+            <NumberField
+              label="Calcium gluconate (mL/burette)"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.01}
               min={0}
-              error={errors.calciumGluconateMl?.message}
+              error={errors.calciumGluconateMlPerBurette?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="targetGlucosePercent"
+          render={({ field }) => (
+            <NumberField
+              label="Target Glucose %"
+              value={String(field.value ?? '')}
+              onChange={field.onChange}
+              step={0.1}
+              min={0.1}
+              error={errors.targetGlucosePercent?.message}
             />
           )}
         />
@@ -184,4 +296,3 @@ export function CombinedBuretteForm({
     </form>
   )
 }
-
