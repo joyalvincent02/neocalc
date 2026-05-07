@@ -1,25 +1,43 @@
-import { createElement } from 'react'
+import { createElement, lazy, Suspense, type ReactNode } from 'react'
 import type { RouteObject } from 'react-router-dom'
-import { DashboardPage } from '../features/dashboard/DashboardPage'
-import { AdditiveCalculatorPage } from '../features/additive-calculator/AdditiveCalculatorPage'
-import { CombinedBurettePage } from '../features/combined-burette/CombinedBurettePage'
-import { GlucoseCalculatorPage } from '../features/glucose-calculator/GlucoseCalculatorPage'
+
+const DashboardPage = lazy(() =>
+  import('../features/dashboard/DashboardPage').then(m => ({ default: m.DashboardPage }))
+)
+const AdditiveCalculatorPage = lazy(() =>
+  import('../features/additive-calculator/AdditiveCalculatorPage').then(m => ({
+    default: m.AdditiveCalculatorPage,
+  }))
+)
+const CombinedBurettePage = lazy(() =>
+  import('../features/combined-burette/CombinedBurettePage').then(m => ({
+    default: m.CombinedBurettePage,
+  }))
+)
+const GlucoseCalculatorPage = lazy(() =>
+  import('../features/glucose-calculator/GlucoseCalculatorPage').then(m => ({
+    default: m.GlucoseCalculatorPage,
+  }))
+)
+
+const suspend = (component: ReactNode) =>
+  createElement(Suspense, { fallback: null }, component)
 
 export const routes: RouteObject[] = [
   {
     path: '/',
-    element: createElement(DashboardPage),
+    element: suspend(createElement(DashboardPage)),
   },
   {
     path: '/additives',
-    element: createElement(AdditiveCalculatorPage),
+    element: suspend(createElement(AdditiveCalculatorPage)),
   },
   {
     path: '/glucose',
-    element: createElement(GlucoseCalculatorPage),
+    element: suspend(createElement(GlucoseCalculatorPage)),
   },
   {
     path: '/combined',
-    element: createElement(CombinedBurettePage),
+    element: suspend(createElement(CombinedBurettePage)),
   },
 ]
