@@ -1,12 +1,19 @@
-import type Decimal from 'decimal.js'
 import { FunctionSquare, Calculator } from 'lucide-react'
 import { roundDecimalToString } from '../../calculations/shared/rounding'
 import type { BreakdownStep } from '../../calculations/shared/validation'
 import { MathBlock } from './MathBlock'
 import { Separator } from '@/components/ui/separator'
 
-function formatExact(dec: Decimal) {
-  return dec.toString()
+function escapeLatexText(text: string): string {
+  return text
+    .replaceAll('\\', '\\textbackslash ')
+    .replaceAll('{', '\\{')
+    .replaceAll('}', '\\}')
+    .replaceAll('_', '\\_')
+    .replaceAll('%', '\\%')
+    .replaceAll('#', '\\#')
+    .replaceAll('&', '\\&')
+    .replaceAll('$', '\\$')
 }
 
 export function CalculationBreakdown({
@@ -48,7 +55,7 @@ export function CalculationBreakdown({
               <div>
                 <span className="font-medium text-muted-foreground">Exact: </span>
                 <span className="font-mono text-foreground">
-                  {formatExact(s.exact)} {s.unit ?? ''}
+                  {s.exact.toString()} {s.unit ?? ''}
                 </span>
               </div>
               <div className="flex items-center gap-1">
@@ -64,16 +71,4 @@ export function CalculationBreakdown({
       </ol>
     </div>
   )
-}
-
-function escapeLatexText(text: string): string {
-  return text
-    .replaceAll('\\', '\\textbackslash ')
-    .replaceAll('{', '\\{')
-    .replaceAll('}', '\\}')
-    .replaceAll('_', '\\_')
-    .replaceAll('%', '\\%')
-    .replaceAll('#', '\\#')
-    .replaceAll('&', '\\&')
-    .replaceAll('$', '\\$')
 }
