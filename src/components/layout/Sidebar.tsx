@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom'
-import { Activity, FlaskConical, Droplets, Layers, Menu } from 'lucide-react'
+import { FlaskConical, Droplets, Layers, Menu } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
@@ -76,9 +76,11 @@ function SidebarBrand() {
       to="/"
       className="flex items-center gap-3 px-6 py-5 hover:opacity-90 transition-opacity"
     >
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-sidebar-accent">
-        <Activity className="h-5 w-5 text-white" />
-      </div>
+      <img
+        src="/NeoCalc.svg"
+        alt="NeoCalc logo"
+        className="h-9 w-9 object-contain"
+      />
       <div>
         <div className="text-sm font-bold text-sidebar-foreground">NeoCalc</div>
         <div className="text-xs text-sidebar-muted-foreground">

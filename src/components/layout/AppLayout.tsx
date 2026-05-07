@@ -14,7 +14,8 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Mobile top bar */}
         <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/80 backdrop-blur px-4 py-3">
           <MobileSidebar />
-          <div className="flex-1 min-w-0">
+          <div className="flex flex-1 items-center gap-2 min-w-0">
+            <img src="/NeoCalc.svg" alt="NeoCalc logo" className="h-6 w-6 object-contain" />
             <div className="text-sm font-bold text-foreground">NeoCalc</div>
           </div>
           <ThemeToggle />
