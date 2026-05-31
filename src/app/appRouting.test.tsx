@@ -16,17 +16,18 @@ function renderAt(path: string) {
 }
 
 describe('app routing + safety banner', () => {
-  it('shows disclaimer banner on additive page', () => {
+  it('shows disclaimer banner on additive page', async () => {
     renderAt('/additives')
-    expect(screen.getByText('Disclaimer')).toBeInTheDocument()
-    expect(screen.getByText(DISCLAIMER_TEXT)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /additive calculator/i })).toBeInTheDocument()
+    // Routes are lazily loaded — wait for Suspense to resolve
+    expect(await screen.findByText(DISCLAIMER_TEXT)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /additive calculator/i })).toBeInTheDocument()
   })
 
   it('navigates to glucose page', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
-    await user.click(screen.getByRole('link', { name: /glucose/i }))
+    // Wait for Suspense to resolve, then click sidebar nav link
+    await user.click(await screen.findByRole('link', { name: /glucose/i }))
     expect(
       await screen.findByRole('heading', { name: /glucose strengthening/i }),
     ).toBeInTheDocument()
@@ -35,28 +36,30 @@ describe('app routing + safety banner', () => {
   it('can run a default additive calculation and shows a result', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
-    await user.click(screen.getByRole('button', { name: /calculate/i }))
+    await user.click(await screen.findByRole('button', { name: /calculate/i }))
     expect(
       await screen.findByText(/Final instruction/i),
     ).toBeInTheDocument()
     expect(screen.getByText(/Per 100 mL burette/i)).toBeInTheDocument()
   })
 
-  it('cycles theme and toggles root dark class', async () => {
+  it('switches theme via the segmented theme control', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
 
     const root = document.documentElement
-    const toggle = screen.getByRole('button', { name: /theme:/i })
 
-    // With our test setup: system=light initially, and cycle is system -> dark -> system -> dark ...
+    // Default: system (light in tests per matchMedia mock)
     expect(root.classList.contains('dark')).toBe(false)
 
-    await user.click(toggle) // system -> dark
+    // Wait for Suspense, then click "Dark mode" button
+    const darkButton = await screen.findByRole('button', { name: /dark mode/i })
+    await user.click(darkButton)
     expect(root.classList.contains('dark')).toBe(true)
 
-    await user.click(toggle) // dark -> system (system light)
+    // Click "Light mode" button
+    const lightButton = screen.getByRole('button', { name: /light mode/i })
+    await user.click(lightButton)
     expect(root.classList.contains('dark')).toBe(false)
   })
 })
-

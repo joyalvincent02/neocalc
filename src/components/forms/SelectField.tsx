@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { Label } from '@/components/ui/label'
 import {
   Select,
@@ -21,11 +22,19 @@ export function SelectField({
   options: { value: string; label: string }[]
   error?: string
 }) {
+  const id = useId()
+  const errorId = error ? `${id}-error` : undefined
+
   return (
     <div className="flex flex-col gap-1.5">
-      <Label className={cn(error && 'text-destructive')}>{label}</Label>
+      <Label htmlFor={id} className={cn(error && 'text-destructive')}>
+        {label}
+      </Label>
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger
+          id={id}
+          aria-invalid={error ? 'true' : undefined}
+          aria-describedby={errorId}
           className={cn(error && 'border-destructive focus:ring-destructive/30')}
         >
           <SelectValue />
@@ -39,7 +48,9 @@ export function SelectField({
         </SelectContent>
       </Select>
       {error ? (
-        <p className="text-xs text-destructive">{error}</p>
+        <p id={errorId} role="alert" className="text-xs text-destructive">
+          {error}
+        </p>
       ) : null}
     </div>
   )

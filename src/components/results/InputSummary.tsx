@@ -21,7 +21,7 @@ export function InputSummary({
           {items.map((i) => (
             <div key={i.label} className="flex flex-col gap-0.5">
               <dt className="text-xs text-muted-foreground">{i.label}</dt>
-              <dd className="font-medium text-foreground">{i.value}</dd>
+              <dd className="font-medium tabular-nums text-foreground">{i.value}</dd>
             </div>
           ))}
         </dl>

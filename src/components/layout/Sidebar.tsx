@@ -43,16 +43,16 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              'group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+              'group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
               isActive
-                ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                : 'text-sidebar-foreground hover:bg-sidebar-muted',
+                ? 'bg-sidebar-accent/20 text-sidebar-accent-foreground font-medium border-l-2 border-l-sidebar-accent pl-[10px]'
+                : 'text-sidebar-foreground hover:bg-sidebar-muted border-l-2 border-l-transparent pl-[10px]',
             )
           }
         >
           <span
             className={cn(
-              'flex h-7 w-7 shrink-0 items-center justify-center rounded-md',
+              'flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
               'bg-sidebar-muted group-[.active]:bg-sidebar-accent/30',
             )}
           >

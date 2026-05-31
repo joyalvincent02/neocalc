@@ -1,5 +1,5 @@
 import { d } from '../shared/decimal'
-import { roundDecimalToString } from '../shared/rounding'
+import { formatExactForDisplay, roundDecimalToString } from '../shared/rounding'
 import {
   issue,
   requireDecimalNonNegative,
@@ -75,20 +75,26 @@ export function calculateCombinedBurette(
     }
   }
 
+  const fd = formatExactForDisplay
+
   const phase1Steps: BreakdownStep[] = [
     {
       label: 'Phase 1.1 — Maintenance fluid per day',
       formula: 'maintenanceRateMlPerHour × 24',
-      substitution: `${rate.toString()} × 24`,
+      substitution: `${fd(rate)} × 24`,
       exact: maintenanceFluidMlPerDay,
       unit: 'mL/day',
+      latexFormula: 'V_{\\text{maint/day}} = R_{\\text{rate}} \\times 24',
+      latexSubstitution: `V_{\\text{maint/day}} = ${fd(rate)} \\times 24`,
     },
     {
       label: 'Phase 1.2 — Burettes per day',
       formula: 'maintenanceFluidMlPerDay ÷ buretteSizeMl',
-      substitution: `${maintenanceFluidMlPerDay.toString()} ÷ ${burette.toString()}`,
+      substitution: `${fd(maintenanceFluidMlPerDay)} ÷ ${fd(burette)}`,
       exact: burettesPerDay,
       unit: 'burettes/day',
+      latexFormula: 'N_{\\text{burettes}} = \\dfrac{V_{\\text{maint/day}}}{V_{\\text{burette}}}',
+      latexSubstitution: `N_{\\text{burettes}} = \\dfrac{${fd(maintenanceFluidMlPerDay)}}{${fd(burette)}}`,
     },
   ]
 
@@ -107,23 +113,29 @@ export function calculateCombinedBurette(
       {
         label: 'Phase 2.1 — Sodium mmol/day',
         formula: 'patientWeightKg × sodiumRequirementMmolPerKgPerDay',
-        substitution: `${w.toString()} × ${req.toString()}`,
+        substitution: `${fd(w)} × ${fd(req)}`,
         exact: sodiumExact.mmolPerDay,
         unit: 'mmol/day',
+        latexFormula: '\\text{Na}_{\\text{mmol/day}} = W \\times R_{\\text{Na}}',
+        latexSubstitution: `\\text{Na}_{\\text{mmol/day}} = ${fd(w)} \\times ${fd(req)}`,
       },
       {
         label: 'Phase 2.2 — Sodium mL/day',
         formula: 'sodiumMmolPerDay ÷ sodiumStockStrengthMmolPerMl',
-        substitution: `${sodiumExact.mmolPerDay.toString()} ÷ ${strength.toString()}`,
+        substitution: `${fd(sodiumExact.mmolPerDay)} ÷ ${fd(strength)}`,
         exact: sodiumExact.mlPerDay,
         unit: 'mL/day',
+        latexFormula: '\\text{Na}_{\\text{mL/day}} = \\dfrac{\\text{Na}_{\\text{mmol/day}}}{C_{\\text{Na}}}',
+        latexSubstitution: `\\text{Na}_{\\text{mL/day}} = \\dfrac{${fd(sodiumExact.mmolPerDay)}}{${fd(strength)}}`,
       },
       {
         label: 'Phase 2.3 — Sodium mL/burette',
         formula: 'sodiumMlPerDay ÷ burettesPerDay',
-        substitution: `${sodiumExact.mlPerDay.toString()} ÷ ${burettesPerDay.toString()}`,
+        substitution: `${fd(sodiumExact.mlPerDay)} ÷ ${fd(burettesPerDay)}`,
         exact: sodiumExact.mlPerBurette,
         unit: 'mL/burette',
+        latexFormula: '\\text{Na}_{\\text{mL/burette}} = \\dfrac{\\text{Na}_{\\text{mL/day}}}{N_{\\text{burettes}}}',
+        latexSubstitution: `\\text{Na}_{\\text{mL/burette}} = \\dfrac{${fd(sodiumExact.mlPerDay)}}{${fd(burettesPerDay)}}`,
       },
     )
   }
@@ -143,23 +155,29 @@ export function calculateCombinedBurette(
       {
         label: 'Phase 3.1 — Potassium mmol/day',
         formula: 'patientWeightKg × potassiumRequirementMmolPerKgPerDay',
-        substitution: `${w.toString()} × ${req.toString()}`,
+        substitution: `${fd(w)} × ${fd(req)}`,
         exact: potassiumExact.mmolPerDay,
         unit: 'mmol/day',
+        latexFormula: '\\text{K}_{\\text{mmol/day}} = W \\times R_{\\text{K}}',
+        latexSubstitution: `\\text{K}_{\\text{mmol/day}} = ${fd(w)} \\times ${fd(req)}`,
       },
       {
         label: 'Phase 3.2 — Potassium mL/day',
         formula: 'potassiumMmolPerDay ÷ potassiumStockStrengthMmolPerMl',
-        substitution: `${potassiumExact.mmolPerDay.toString()} ÷ ${strength.toString()}`,
+        substitution: `${fd(potassiumExact.mmolPerDay)} ÷ ${fd(strength)}`,
         exact: potassiumExact.mlPerDay,
         unit: 'mL/day',
+        latexFormula: '\\text{K}_{\\text{mL/day}} = \\dfrac{\\text{K}_{\\text{mmol/day}}}{C_{\\text{K}}}',
+        latexSubstitution: `\\text{K}_{\\text{mL/day}} = \\dfrac{${fd(potassiumExact.mmolPerDay)}}{${fd(strength)}}`,
       },
       {
         label: 'Phase 3.3 — Potassium mL/burette',
         formula: 'potassiumMlPerDay ÷ burettesPerDay',
-        substitution: `${potassiumExact.mlPerDay.toString()} ÷ ${burettesPerDay.toString()}`,
+        substitution: `${fd(potassiumExact.mlPerDay)} ÷ ${fd(burettesPerDay)}`,
         exact: potassiumExact.mlPerBurette,
         unit: 'mL/burette',
+        latexFormula: '\\text{K}_{\\text{mL/burette}} = \\dfrac{\\text{K}_{\\text{mL/day}}}{N_{\\text{burettes}}}',
+        latexSubstitution: `\\text{K}_{\\text{mL/burette}} = \\dfrac{${fd(potassiumExact.mlPerDay)}}{${fd(burettesPerDay)}}`,
       },
     )
   }
@@ -177,9 +195,9 @@ export function calculateCombinedBurette(
   }
 
   const reservedParts: string[] = []
-  if (sodiumExact) reservedParts.push(sodiumMlPerBurette.toString())
-  if (potassiumExact) reservedParts.push(potassiumMlPerBurette.toString())
-  if (caMlPerBurette.gt(0)) reservedParts.push(caMlPerBurette.toString())
+  if (sodiumExact) reservedParts.push(fd(sodiumMlPerBurette))
+  if (potassiumExact) reservedParts.push(fd(potassiumMlPerBurette))
+  if (caMlPerBurette.gt(0)) reservedParts.push(fd(caMlPerBurette))
 
   const phase4Steps: BreakdownStep[] = [
     {
@@ -188,6 +206,10 @@ export function calculateCombinedBurette(
       substitution: reservedParts.length ? reservedParts.join(' + ') : '0',
       exact: totalReservedMl,
       unit: 'mL',
+      latexFormula: 'V_{\\text{reserved}} = \\text{Na}_{\\text{mL/burette}} + \\text{K}_{\\text{mL/burette}} + \\text{Ca}_{\\text{mL/burette}}',
+      latexSubstitution: reservedParts.length
+        ? `V_{\\text{reserved}} = ${reservedParts.join(' + ')}`
+        : `V_{\\text{reserved}} = 0`,
     },
   ]
 

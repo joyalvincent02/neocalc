@@ -1,9 +1,10 @@
+import { useRef, useEffect } from 'react'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { calculateGlucoseStrengthening } from '../../calculations/glucose/glucoseCalculator'
 import { useCalculationResult } from '../../hooks/useCalculationResult'
 import { useRoundingPrecision } from '../../hooks/useRoundingPrecision'
-import { RoundingControl } from '../../components/forms/RoundingControl'
+import { SettingsPopover } from '../../components/forms/SettingsPopover'
 import { GlucoseCalculatorForm } from './GlucoseCalculatorForm'
 import { GlucoseResult } from './GlucoseResult'
 import type { GlucoseCalculatorResult } from '../../calculations/glucose/glucoseTypes'
@@ -11,6 +12,7 @@ import type { GlucoseFormValues } from './glucoseFormSchema'
 
 export function GlucoseCalculatorPage() {
   const { dp, setDp } = useRoundingPrecision()
+  const resultRef = useRef<HTMLDivElement>(null)
   const { lastInput, result, run } = useCalculationResult<
     GlucoseFormValues,
     GlucoseCalculatorResult
@@ -41,10 +43,16 @@ export function GlucoseCalculatorPage() {
     return { ...engine, warnings: [...warnings, ...engine.warnings] }
   })
 
+  useEffect(() => {
+    if (lastInput && result && resultRef.current) {
+      resultRef.current.focus()
+    }
+  }, [lastInput, result])
+
   return (
     <AppLayout>
       <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Glucose Strengthening
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -62,7 +70,7 @@ export function GlucoseCalculatorPage() {
                   Enter fluid details below
                 </CardDescription>
               </div>
-              <RoundingControl value={dp} onChange={setDp} />
+              <SettingsPopover roundingDp={dp} onRoundingDpChange={setDp} />
             </div>
           </CardHeader>
           <CardContent>
@@ -70,9 +78,18 @@ export function GlucoseCalculatorPage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div
+          ref={resultRef}
+          className="space-y-4 outline-none"
+          role="status"
+          aria-live="polite"
+          aria-label="Calculation results"
+          tabIndex={-1}
+        >
           {lastInput && result ? (
-            <GlucoseResult input={lastInput} result={result} roundingDp={dp} />
+            <div className="result-enter">
+              <GlucoseResult input={lastInput} result={result} roundingDp={dp} />
+            </div>
           ) : (
             <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
               <div>

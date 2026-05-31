@@ -137,13 +137,12 @@ describe('calculateCombinedBurette', () => {
       const result = calculateCombinedBurette(BASE_INPUT)
       if (!result.ok) throw new Error('Expected ok result')
 
-      // Available = 100 - (Na + K) mL per burette
+      // Available ≈ 100 - (Na + K) mL per burette
+      // Use toFixed for comparison — availableForGlucoseMl passes through a
+      // Number conversion step which caps precision to float64 (~15 sig digits)
       const totalReserved = result.exact.totalReservedMl
-      expect(result.exact.availableForGlucoseMl.toString()).toBe(
-        result.exact.availableForGlucoseMl.toString(),
-      )
-      expect(result.exact.availableForGlucoseMl.toString()).toBe(
-        totalReserved.neg().add(100).toString(),
+      expect(result.exact.availableForGlucoseMl.toFixed(6)).toBe(
+        totalReserved.neg().add(100).toFixed(6),
       )
 
       // Final concentration check over full 100 mL burette

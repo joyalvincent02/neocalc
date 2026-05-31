@@ -1,9 +1,10 @@
+import { useRef, useEffect } from 'react'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { calculateCombinedBurette } from '../../calculations/combined/combinedBuretteCalculator'
 import { useCalculationResult } from '../../hooks/useCalculationResult'
 import { useRoundingPrecision } from '../../hooks/useRoundingPrecision'
-import { RoundingControl } from '../../components/forms/RoundingControl'
+import { SettingsPopover } from '../../components/forms/SettingsPopover'
 import { CombinedBuretteForm } from './CombinedBuretteForm'
 import { CombinedBuretteResultView } from './CombinedBuretteResult'
 import type { CombinedBuretteResult } from '../../calculations/combined/combinedTypes'
@@ -11,6 +12,7 @@ import type { CombinedFormValues } from './combinedFormSchema'
 
 export function CombinedBurettePage() {
   const { dp, setDp } = useRoundingPrecision()
+  const resultRef = useRef<HTMLDivElement>(null)
   const { lastInput, result, run } = useCalculationResult<
     CombinedFormValues,
     CombinedBuretteResult
@@ -39,10 +41,16 @@ export function CombinedBurettePage() {
     ),
   )
 
+  useEffect(() => {
+    if (lastInput && result && resultRef.current) {
+      resultRef.current.focus()
+    }
+  }, [lastInput, result])
+
   return (
     <AppLayout>
       <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Combined Burette
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -61,7 +69,7 @@ export function CombinedBurettePage() {
                   Enter patient, fluid, and electrolyte details
                 </CardDescription>
               </div>
-              <RoundingControl value={dp} onChange={setDp} />
+              <SettingsPopover roundingDp={dp} onRoundingDpChange={setDp} />
             </div>
           </CardHeader>
           <CardContent>
@@ -69,9 +77,18 @@ export function CombinedBurettePage() {
           </CardContent>
         </Card>
 
-        <div className="space-y-4">
+        <div
+          ref={resultRef}
+          className="space-y-4 outline-none"
+          role="status"
+          aria-live="polite"
+          aria-label="Calculation results"
+          tabIndex={-1}
+        >
           {lastInput && result ? (
-            <CombinedBuretteResultView input={lastInput} result={result} roundingDp={dp} />
+            <div className="result-enter">
+              <CombinedBuretteResultView input={lastInput} result={result} roundingDp={dp} />
+            </div>
           ) : (
             <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
               <div>

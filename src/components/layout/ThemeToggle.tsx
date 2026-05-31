@@ -1,54 +1,55 @@
 import { Moon, Sun, Monitor } from 'lucide-react'
-import { useTheme } from '../../hooks/useTheme'
-import { Button } from '@/components/ui/button'
+import { useTheme, type Theme } from '../../hooks/useTheme'
+import { cn } from '@/lib/utils'
+
+const options: { value: Theme; icon: React.ReactNode; label: string }[] = [
+  {
+    value: 'light',
+    icon: <Sun className="h-3.5 w-3.5" aria-hidden="true" />,
+    label: 'Light mode',
+  },
+  {
+    value: 'system',
+    icon: <Monitor className="h-3.5 w-3.5" aria-hidden="true" />,
+    label: 'System preference',
+  },
+  {
+    value: 'dark',
+    icon: <Moon className="h-3.5 w-3.5" aria-hidden="true" />,
+    label: 'Dark mode',
+  },
+]
 
 export function ThemeToggle() {
-  const { theme, effectiveTheme, setTheme } = useTheme()
-
-  const handleToggle = () => {
-    if (theme === 'system') {
-      setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')
-      return
-    }
-    if (theme === 'light') {
-      setTheme('dark')
-      return
-    }
-    setTheme('system')
-  }
-
-  const icon =
-    theme === 'system' ? (
-      <Monitor className="h-4 w-4" />
-    ) : effectiveTheme === 'dark' ? (
-      <Moon className="h-4 w-4" />
-    ) : (
-      <Sun className="h-4 w-4" />
-    )
-
-  const title =
-    theme === 'system'
-      ? `Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode`
-      : theme === 'light'
-        ? 'Switch to dark mode'
-        : 'Switch to system preference'
-
-  const srLabel =
-    theme === 'system'
-      ? `Theme: system (${effectiveTheme}). Activate to switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode.`
-      : `Theme: ${theme}. Activate to ${title.toLowerCase()}.`
+  const { theme, setTheme } = useTheme()
 
   return (
-    <Button
-      type="button"
-      variant="outline"
-      size="icon"
-      onClick={handleToggle}
-      title={title}
-      aria-label={srLabel}
-      className="h-8 w-8 text-sidebar-foreground border-sidebar-border bg-transparent hover:bg-sidebar-muted lg:text-foreground lg:border-border lg:bg-card lg:hover:bg-secondary"
+    <div
+      role="group"
+      aria-label="Theme selection"
+      className="inline-flex rounded-md border border-sidebar-border overflow-hidden lg:border-border"
     >
-      {icon}
-    </Button>
+      {options.map((opt) => {
+        const active = theme === opt.value
+        return (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setTheme(opt.value)}
+            aria-label={opt.label}
+            aria-pressed={active}
+            title={opt.label}
+            className={cn(
+              'flex h-7 w-9 items-center justify-center transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+              active
+                ? 'bg-sidebar-accent text-sidebar-accent-foreground lg:bg-primary lg:text-primary-foreground'
+                : 'text-sidebar-muted-foreground hover:bg-sidebar-muted hover:text-sidebar-foreground lg:text-muted-foreground lg:hover:bg-secondary lg:hover:text-foreground',
+            )}
+          >
+            {opt.icon}
+          </button>
+        )
+      })}
+    </div>
   )
 }

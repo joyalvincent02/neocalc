@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { DISCLAIMER_TEXT } from '../../config/safetyMessages'
 import { DesktopSidebar, MobileSidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
@@ -21,17 +21,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <ThemeToggle />
         </header>
 
-        {/* Disclaimer banner */}
-        <div className="border-b border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-foreground">
-          <div className="mx-auto w-full max-w-4xl flex items-start gap-2">
-            <AlertTriangle
-              className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+        {/* Disclaimer banner — informational only, recedes visually */}
+        <div className="border-b border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground">
+          <div className="mx-auto w-full max-w-4xl flex items-center gap-2">
+            <Info
+              className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
               aria-hidden="true"
             />
-            <span>
-              <span className="font-semibold text-warning">Disclaimer: </span>
-              {DISCLAIMER_TEXT}
-            </span>
+            <span>{DISCLAIMER_TEXT}</span>
           </div>
         </div>
 

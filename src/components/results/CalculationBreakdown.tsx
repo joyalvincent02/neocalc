@@ -1,8 +1,9 @@
-import { FunctionSquare, Calculator } from 'lucide-react'
-import { roundDecimalToString } from '../../calculations/shared/rounding'
+import { useState } from 'react'
+import { ChevronDown, ChevronUp, FunctionSquare } from 'lucide-react'
+import { formatExactForDisplay, roundDecimalToString } from '../../calculations/shared/rounding'
 import type { BreakdownStep } from '../../calculations/shared/validation'
 import { MathBlock } from './MathBlock'
-import { Separator } from '@/components/ui/separator'
+import { Button } from '@/components/ui/button'
 
 function escapeLatexText(text: string): string {
   return text
@@ -16,6 +17,82 @@ function escapeLatexText(text: string): string {
     .replaceAll('$', '\\$')
 }
 
+function StepRow({
+  step,
+  index,
+  roundingDp,
+}: {
+  step: BreakdownStep
+  index: number
+  roundingDp: number
+}) {
+  const formulaLatex = step.latexFormula ?? `\\text{${escapeLatexText(step.formula)}}`
+  const substitutionLatex = step.latexSubstitution ?? `\\text{${escapeLatexText(step.substitution)}}`
+
+  return (
+    <li className="grid grid-cols-[2rem_1fr] gap-x-3">
+      {/* Step number badge */}
+      <div className="flex flex-col items-center gap-1 pt-0.5">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
+          {index + 1}
+        </span>
+        <div className="w-px flex-1 bg-border" aria-hidden="true" />
+      </div>
+
+      {/* Step content */}
+      <div className="pb-5">
+        <div className="text-sm font-semibold text-foreground mb-2">{step.label}</div>
+
+        {/* Formula */}
+        <div className="mb-2">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+            Formula
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
+            <MathBlock latex={formulaLatex} fallback={step.formula} />
+          </div>
+        </div>
+
+        {/* Substitution */}
+        <div className="mb-2">
+          <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
+            Substitution
+          </div>
+          <div className="rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
+            <MathBlock latex={substitutionLatex} fallback={step.substitution} />
+          </div>
+        </div>
+
+        {/* Exact vs Rounded */}
+        <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1">
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              Exact
+            </span>
+            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+              {formatExactForDisplay(step.exact)}
+              {step.unit ? ` ${step.unit}` : ''}
+            </span>
+          </div>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">
+              Rounded
+            </span>
+            <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+              {roundDecimalToString(step.exact, { dp: roundingDp })}
+              {step.unit ? (
+                <span className="ml-0.5 text-xs font-normal text-muted-foreground">
+                  {step.unit}
+                </span>
+              ) : null}
+            </span>
+          </div>
+        </div>
+      </div>
+    </li>
+  )
+}
+
 export function CalculationBreakdown({
   steps,
   roundingDp,
@@ -23,52 +100,67 @@ export function CalculationBreakdown({
   steps: BreakdownStep[]
   roundingDp: number
 }) {
+  const [open, setOpen] = useState(false)
+
   if (steps.length === 0) return null
+
   return (
-    <div className="rounded-lg border border-border bg-muted/30 p-4">
-      <div className="flex items-center gap-2 text-sm font-semibold text-foreground mb-3">
-        <FunctionSquare className="h-4 w-4 text-primary" aria-hidden="true" />
-        Calculation Breakdown
-      </div>
-      <ol className="space-y-4">
-        {steps.map((s, idx) => (
-          <li key={idx}>
-            {idx > 0 && <Separator className="mb-4" />}
-            <div className="text-sm font-medium text-foreground">{s.label}</div>
-            <div className="mt-1.5 space-y-2 text-xs text-muted-foreground">
-              <div>
-                <div className="text-xs font-medium text-foreground/70 mb-0.5">Equation</div>
-                <MathBlock
-                  latex={`\\text{${escapeLatexText(s.formula)}}`}
-                  fallback={s.formula}
-                />
+    <div className="rounded-lg border border-border bg-muted/20">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left hover:bg-muted/30 transition-colors rounded-lg"
+        aria-expanded={open}
+      >
+        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+          <FunctionSquare className="h-4 w-4 text-primary" aria-hidden="true" />
+          Step-by-step Calculation
+          <span className="text-xs font-normal text-muted-foreground">
+            ({steps.length} steps)
+          </span>
+        </div>
+        {open ? (
+          <ChevronUp className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        ) : (
+          <ChevronDown className="h-4 w-4 text-muted-foreground" aria-hidden="true" />
+        )}
+      </button>
+
+      {open && (
+        <div className="px-4 pb-4 pt-1">
+          <div className="text-xs text-muted-foreground mb-4 flex items-center gap-4">
+            <span>
+              <span className="font-semibold text-muted-foreground">Exact</span> = intermediate value (6 d.p.)
+            </span>
+            <span>
+              <span className="font-semibold text-primary">Rounded</span> = value at selected d.p. — use this
+            </span>
+          </div>
+          <ol className="space-y-0" aria-label="Calculation steps">
+            {steps.map((s, idx) => (
+              <div
+                key={idx}
+                className="step-enter"
+                style={{ animationDelay: `${idx * 30}ms` }}
+              >
+                <StepRow step={s} index={idx} roundingDp={roundingDp} />
               </div>
-              <div>
-                <div className="text-xs font-medium text-foreground/70 mb-0.5">Substitution</div>
-                <MathBlock
-                  latex={`\\text{${escapeLatexText(s.substitution)}}`}
-                  fallback={s.substitution}
-                />
-              </div>
-            </div>
-            <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-xs">
-              <div>
-                <span className="font-medium text-muted-foreground">Exact: </span>
-                <span className="font-mono text-foreground">
-                  {s.exact.toString()} {s.unit ?? ''}
-                </span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Calculator className="h-3 w-3 text-primary" aria-hidden="true" />
-                <span className="font-medium text-muted-foreground">Rounded: </span>
-                <span className="font-mono font-semibold text-foreground">
-                  {roundDecimalToString(s.exact, { dp: roundingDp })} {s.unit ?? ''}
-                </span>
-              </div>
-            </div>
-          </li>
-        ))}
-      </ol>
+            ))}
+          </ol>
+          <div className="mt-1 pt-3 border-t border-border">
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-xs text-muted-foreground"
+              onClick={() => setOpen(false)}
+            >
+              <ChevronUp className="h-3.5 w-3.5" />
+              Collapse
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

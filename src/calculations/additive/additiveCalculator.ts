@@ -1,5 +1,5 @@
 import { d } from '../shared/decimal'
-import { roundDecimalToString } from '../shared/rounding'
+import { formatExactForDisplay, roundDecimalToString } from '../shared/rounding'
 import {
   issue,
   requireDecimalNonNegative,
@@ -106,48 +106,62 @@ export function calculateAdditive(
     return { ok: false, errors, warnings }
   }
 
+  const fd = formatExactForDisplay
+
   const breakdownSteps: BreakdownStep[] = [
     {
       label: 'Total requirement (mmol/day)',
       formula: 'patientWeightKg × requiredMmolPerKgPerDay',
-      substitution: `${w.toString()} × ${req.toString()}`,
+      substitution: `${fd(w)} × ${fd(req)}`,
       exact: totalRequirementMmolPerDay,
       unit: 'mmol/day',
+      latexFormula: 'T_{\\text{req}} = W \\times R',
+      latexSubstitution: `T_{\\text{req}} = ${fd(w)} \\times ${fd(req)}`,
     },
     {
       label: 'Additive volume per day (mL/day)',
       formula: 'totalRequirementMmolPerDay ÷ stockStrengthMmolPerMl',
-      substitution: `${totalRequirementMmolPerDay.toString()} ÷ ${strength.toString()}`,
+      substitution: `${fd(totalRequirementMmolPerDay)} ÷ ${fd(strength)}`,
       exact: additiveMlPerDay,
       unit: 'mL/day',
+      latexFormula: 'V_{\\text{add/day}} = \\dfrac{T_{\\text{req}}}{C_{\\text{stock}}}',
+      latexSubstitution: `V_{\\text{add/day}} = \\dfrac{${fd(totalRequirementMmolPerDay)}}{${fd(strength)}}`,
     },
     {
       label: 'Maintenance fluid per day (mL/day)',
       formula: 'maintenanceRateMlPerHour × 24',
-      substitution: `${rate.toString()} × 24`,
+      substitution: `${fd(rate)} × 24`,
       exact: maintenanceFluidMlPerDay,
       unit: 'mL/day',
+      latexFormula: 'V_{\\text{maint/day}} = R_{\\text{rate}} \\times 24',
+      latexSubstitution: `V_{\\text{maint/day}} = ${fd(rate)} \\times 24`,
     },
     {
       label: 'Burettes per day (burettes/day)',
       formula: 'maintenanceFluidMlPerDay ÷ buretteSizeMl',
-      substitution: `${maintenanceFluidMlPerDay.toString()} ÷ ${buretteSize.toString()}`,
+      substitution: `${fd(maintenanceFluidMlPerDay)} ÷ ${fd(buretteSize)}`,
       exact: burettesPerDay,
       unit: 'burettes/day',
+      latexFormula: 'N_{\\text{burettes}} = \\dfrac{V_{\\text{maint/day}}}{V_{\\text{burette}}}',
+      latexSubstitution: `N_{\\text{burettes}} = \\dfrac{${fd(maintenanceFluidMlPerDay)}}{${fd(buretteSize)}}`,
     },
     {
       label: 'Additive per burette (mL)',
       formula: 'additiveMlPerDay ÷ burettesPerDay',
-      substitution: `${additiveMlPerDay.toString()} ÷ ${burettesPerDay.toString()}`,
+      substitution: `${fd(additiveMlPerDay)} ÷ ${fd(burettesPerDay)}`,
       exact: additiveMlPerBurette,
       unit: 'mL/burette',
+      latexFormula: 'V_{\\text{add/burette}} = \\dfrac{V_{\\text{add/day}}}{N_{\\text{burettes}}}',
+      latexSubstitution: `V_{\\text{add/burette}} = \\dfrac{${fd(additiveMlPerDay)}}{${fd(burettesPerDay)}}`,
     },
     {
       label: 'Base fluid per burette (mL)',
       formula: 'buretteSizeMl − additiveMlPerBurette',
-      substitution: `${buretteSize.toString()} − ${additiveMlPerBurette.toString()}`,
+      substitution: `${fd(buretteSize)} − ${fd(additiveMlPerBurette)}`,
       exact: baseFluidMlPerBurette,
       unit: 'mL/burette',
+      latexFormula: 'V_{\\text{base/burette}} = V_{\\text{burette}} - V_{\\text{add/burette}}',
+      latexSubstitution: `V_{\\text{base/burette}} = ${fd(buretteSize)} - ${fd(additiveMlPerBurette)}`,
     },
   ]
 

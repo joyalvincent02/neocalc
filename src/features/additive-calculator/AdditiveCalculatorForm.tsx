@@ -4,6 +4,7 @@ import { DEFAULT_PROTOCOL } from '../../config/defaultProtocol'
 import { ELECTROLYTE_PRESETS } from '../../config/electrolytePresets'
 import { NumberField } from '../../components/forms/NumberField'
 import { SelectField } from '../../components/forms/SelectField'
+import { FormSection } from '../../components/forms/FormSection'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
@@ -44,16 +45,17 @@ export function AdditiveCalculatorForm({
 
   return (
     <form
-      className="space-y-4"
+      className="space-y-5"
       onSubmit={handleSubmit((v) => onSubmit(v))}
     >
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <FormSection title="Patient">
         <Controller
           control={control}
           name="patientWeightKg"
           render={({ field }) => (
             <NumberField
-              label="Patient weight (kg)"
+              label="Patient weight"
+              unit="kg"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.001}
@@ -67,7 +69,8 @@ export function AdditiveCalculatorForm({
           name="requiredMmolPerKgPerDay"
           render={({ field }) => (
             <NumberField
-              label="Requirement (mmol/kg/day)"
+              label="Requirement"
+              unit="mmol/kg/day"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.1}
@@ -76,50 +79,9 @@ export function AdditiveCalculatorForm({
             />
           )}
         />
-        <Controller
-          control={control}
-          name="stockStrengthMmolPerMl"
-          render={({ field }) => (
-            <NumberField
-              label="Stock strength (mmol/mL)"
-              value={String(field.value ?? '')}
-              onChange={field.onChange}
-              step={0.1}
-              min={DEFAULT_PROTOCOL.ranges.stockStrengthMmolPerMl.min}
-              error={errors.stockStrengthMmolPerMl?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="maintenanceRateMlPerHour"
-          render={({ field }) => (
-            <NumberField
-              label="Maintenance rate (mL/hr)"
-              value={String(field.value ?? '')}
-              onChange={field.onChange}
-              step={0.01}
-              min={DEFAULT_PROTOCOL.ranges.maintenanceRateMlPerHour.min}
-              error={errors.maintenanceRateMlPerHour?.message}
-            />
-          )}
-        />
-        <Controller
-          control={control}
-          name="buretteSizeMl"
-          render={({ field }) => (
-            <SelectField
-              label="Burette size (mL)"
-              value={String(field.value)}
-              onChange={field.onChange}
-              options={DEFAULT_PROTOCOL.buretteSizesMl.map((n) => ({
-                value: String(n),
-                label: `${n} mL`,
-              }))}
-              error={errors.buretteSizeMl?.message}
-            />
-          )}
-        />
+      </FormSection>
+
+      <FormSection title="Solution">
         <Controller
           control={control}
           name="additiveName"
@@ -136,7 +98,56 @@ export function AdditiveCalculatorForm({
             />
           )}
         />
-      </div>
+        <Controller
+          control={control}
+          name="stockStrengthMmolPerMl"
+          render={({ field }) => (
+            <NumberField
+              label="Stock strength"
+              unit="mmol/mL"
+              value={String(field.value ?? '')}
+              onChange={field.onChange}
+              step={0.1}
+              min={DEFAULT_PROTOCOL.ranges.stockStrengthMmolPerMl.min}
+              error={errors.stockStrengthMmolPerMl?.message}
+            />
+          )}
+        />
+      </FormSection>
+
+      <FormSection title="Fluid & Burette">
+        <Controller
+          control={control}
+          name="maintenanceRateMlPerHour"
+          render={({ field }) => (
+            <NumberField
+              label="Maintenance rate"
+              unit="mL/hr"
+              value={String(field.value ?? '')}
+              onChange={field.onChange}
+              step={0.01}
+              min={DEFAULT_PROTOCOL.ranges.maintenanceRateMlPerHour.min}
+              error={errors.maintenanceRateMlPerHour?.message}
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="buretteSizeMl"
+          render={({ field }) => (
+            <SelectField
+              label="Burette size"
+              value={String(field.value)}
+              onChange={field.onChange}
+              options={DEFAULT_PROTOCOL.buretteSizesMl.map((n) => ({
+                value: String(n),
+                label: `${n} mL`,
+              }))}
+              error={errors.buretteSizeMl?.message}
+            />
+          )}
+        />
+      </FormSection>
 
       <div className="flex flex-col gap-1.5">
         <Label>Base fluid name</Label>
@@ -146,10 +157,9 @@ export function AdditiveCalculatorForm({
         ) : null}
       </div>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" size="lg" className="w-full">
         Calculate
       </Button>
     </form>
   )
 }
-
