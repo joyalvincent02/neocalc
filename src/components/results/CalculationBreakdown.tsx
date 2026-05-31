@@ -30,7 +30,7 @@ function StepRow({
   const substitutionLatex = step.latexSubstitution ?? `\\text{${escapeLatexText(step.substitution)}}`
 
   return (
-    <li className="grid grid-cols-[2rem_1fr] gap-x-3">
+    <li className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3">
       {/* Step number badge */}
       <div className="flex flex-col items-center gap-1 pt-0.5">
         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
@@ -40,7 +40,7 @@ function StepRow({
       </div>
 
       {/* Step content */}
-      <div className="pb-5">
+      <div className="min-w-0 pb-5">
         <div className="text-sm font-semibold text-foreground mb-2">{step.label}</div>
 
         {/* Formula */}
@@ -48,7 +48,7 @@ function StepRow({
           <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
             Formula
           </div>
-          <div className="rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
+          <div className="min-w-0 rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
             <MathBlock latex={formulaLatex} fallback={step.formula} />
           </div>
         </div>
@@ -58,7 +58,7 @@ function StepRow({
           <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground mb-1">
             Substitution
           </div>
-          <div className="rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
+          <div className="min-w-0 rounded-md bg-muted/40 px-3 py-1.5 overflow-x-auto">
             <MathBlock latex={substitutionLatex} fallback={step.substitution} />
           </div>
         </div>

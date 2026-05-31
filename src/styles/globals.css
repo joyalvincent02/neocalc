@@ -181,3 +181,22 @@ body {
   }
 }
 
+/* ── Formula horizontal scroll (long KaTeX on narrow viewports) ───────────── */
+
+.formula-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.formula-scroll-inner {
+  width: max-content;
+  margin-inline: auto;
+}
+
+.formula-scroll .katex {
+  white-space: nowrap;
+}
+

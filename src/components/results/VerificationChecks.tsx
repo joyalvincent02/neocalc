@@ -32,15 +32,15 @@ export function VerificationChecks({ checks }: { checks: VerificationCheck[] }) 
       </div>
       <ul className="space-y-1.5">
         {checks.map((check, idx) => (
-          <li key={idx} className="flex items-start gap-2">
+          <li key={idx} className="flex items-center gap-2">
             {icons[check.status]}
-            <div className="min-w-0">
-              <span className={`text-xs font-medium ${labelColour[check.status]}`}>
+            <div className="min-w-0 text-xs leading-snug">
+              <span className={`font-medium ${labelColour[check.status]}`}>
                 {check.label}
               </span>
-              {check.detail && (
-                <span className="text-xs text-muted-foreground ml-1">{check.detail}</span>
-              )}
+              {check.detail ? (
+                <span className="tabular-nums text-muted-foreground ml-1">{check.detail}</span>
+              ) : null}
             </div>
           </li>
         ))}

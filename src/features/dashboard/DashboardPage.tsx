@@ -1,43 +1,9 @@
 import { Link } from 'react-router-dom'
-import { FlaskConical, Droplets, Layers, ArrowRight, Activity } from 'lucide-react'
+import { Activity, ArrowRight } from 'lucide-react'
+import { calculatorNavItems } from '../../config/calculatorNav'
 import { AppLayout } from '../../components/layout/AppLayout'
 import { Badge } from '@/components/ui/badge'
-
-interface CalculatorCard {
-  to: string
-  title: string
-  description: string
-  details: string
-  icon: React.ReactNode
-  badge: string
-}
-
-const calculators: CalculatorCard[] = [
-  {
-    to: '/additives',
-    title: 'Additive Calculator',
-    description: 'Sodium chloride & potassium chloride per-burette additive calculations.',
-    details: 'Calculates the exact mL of electrolyte additive required per burette based on patient weight, daily requirement, stock strength, and maintenance rate.',
-    icon: <FlaskConical className="h-5 w-5" />,
-    badge: 'NaCl / KCl',
-  },
-  {
-    to: '/glucose',
-    title: 'Glucose Strengthening',
-    description: 'Calculate base + additive glucose volumes to reach a target concentration.',
-    details: 'Determines the optimal mix of base and additive glucose solutions to achieve the target glucose infusion rate (GIR) and concentration.',
-    icon: <Droplets className="h-5 w-5" />,
-    badge: 'GIR / GCS',
-  },
-  {
-    to: '/combined',
-    title: 'Combined Burette',
-    description: 'Reserve electrolyte volumes first, then calculate glucose strengthening.',
-    details: 'All-in-one burette calculator — reserves space for NaCl, KCl, and calcium gluconate additives, then solves glucose strengthening in the remaining volume.',
-    icon: <Layers className="h-5 w-5" />,
-    badge: 'Full burette',
-  },
-]
+import { cn } from '@/lib/utils'
 
 export function DashboardPage() {
   return (
@@ -61,41 +27,50 @@ export function DashboardPage() {
 
         {/* Calculator cards — single semantic links */}
         <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-3">
-          {calculators.map((calc) => (
-            <Link
-              key={calc.to}
-              to={calc.to}
-              className="group flex flex-col rounded-lg border border-border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-primary/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
-              aria-label={`Open ${calc.title}`}
-            >
-              {/* Icon + badge row */}
-              <div className="flex items-start justify-between gap-2 mb-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary border border-primary/20">
-                  {calc.icon}
+          {calculatorNavItems.map((calc) => {
+            const Icon = calc.icon
+            return (
+              <Link
+                key={calc.to}
+                to={calc.to}
+                className={cn(
+                  'group flex flex-col rounded-lg border bg-card p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                  calc.accent.cardBorder,
+                  calc.accent.cardHoverBorder,
+                )}
+                aria-label={`Open ${calc.label}`}
+              >
+                <div className="flex items-start justify-between gap-2 mb-4">
+                  <div
+                    className={cn(
+                      'flex h-10 w-10 items-center justify-center rounded-lg',
+                      calc.accent.iconBg,
+                    )}
+                  >
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                  </div>
+                  <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
+                    {calc.badge}
+                  </Badge>
                 </div>
-                <Badge variant="secondary" className="text-xs font-normal text-muted-foreground">
-                  {calc.badge}
-                </Badge>
-              </div>
 
-              {/* Text */}
-              <div className="flex-1">
-                <h2 className="text-base font-semibold text-foreground mb-1">{calc.title}</h2>
-                <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                  {calc.description}
-                </p>
-                <p className="text-xs text-muted-foreground/70 leading-relaxed">
-                  {calc.details}
-                </p>
-              </div>
+                <div className="flex-1">
+                  <h2 className="text-base font-semibold text-foreground mb-1">{calc.label}</h2>
+                  <p className="text-xs text-muted-foreground leading-relaxed mb-3">
+                    {calc.cardDescription}
+                  </p>
+                  <p className="text-xs text-muted-foreground/70 leading-relaxed">
+                    {calc.cardDetails}
+                  </p>
+                </div>
 
-              {/* CTA row */}
-              <div className="mt-5 flex items-center gap-1.5 text-sm font-medium text-primary">
-                Open Calculator
-                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-              </div>
-            </Link>
-          ))}
+                <div className={cn('mt-5 flex items-center gap-1.5 text-sm font-medium', calc.accent.cta)}>
+                  Open Calculator
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
+                </div>
+              </Link>
+            )
+          })}
         </div>
       </div>
     </AppLayout>
