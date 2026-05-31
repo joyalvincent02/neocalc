@@ -57,24 +57,24 @@
   --secondary:           #f1f5f9; /* slate-100 */
   --secondary-foreground:#0f172a;
   --muted:               #f1f5f9; /* slate-100 */
-  --muted-foreground:    #64748b; /* slate-500 */
+  --muted-foreground:    #334155; /* slate-700 — stronger secondary text on white */
   --accent:              #eff6ff; /* blue-50 */
-  --accent-foreground:   #1d4ed8; /* blue-700 */
+  --accent-foreground:   #1e40af; /* blue-800 — AA link contrast on light surfaces */
   --destructive:         #dc2626; /* red-600 */
   --destructive-foreground: #ffffff;
-  --warning:             #d97706; /* amber-600 */
+  --warning:             #b45309; /* amber-700 — readable warning text on light tints */
   --warning-foreground:  #ffffff;
-  --success:             #16a34a; /* green-600 */
+  --success:             #15803d; /* green-700 */
   --success-foreground:  #ffffff;
-  --border:              #e2e8f0; /* slate-200 */
-  --input:               #e2e8f0;
+  --border:              #cbd5e1; /* slate-300 — clearer dividers and inputs */
+  --input:               #cbd5e1;
   --ring:                #1d4ed8; /* blue-700 */
 
   /* Sidebar — dark navy for clinical authority */
   --sidebar:             #1e293b; /* slate-800 */
   --sidebar-foreground:  #e2e8f0; /* slate-200 */
   --sidebar-muted:       #334155; /* slate-700 */
-  --sidebar-muted-foreground: #94a3b8; /* slate-400 */
+  --sidebar-muted-foreground: #cbd5e1; /* slate-300 — clearer inactive nav labels */
   --sidebar-accent:      #3b82f6; /* blue-500 */
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border:      #334155; /* slate-700 */
@@ -82,17 +82,17 @@
 
 .dark {
   --background:          #0c1220; /* deeper than slate-900 for better card separation */
-  --foreground:          #e8edf4; /* slightly warmer than slate-100 */
+  --foreground:          #f1f5f9; /* slate-100 — stronger body text on dark surfaces */
   --card:                #1a2535; /* lifted above background for clear separation */
-  --card-foreground:     #e8edf4;
+  --card-foreground:     #f1f5f9;
   --popover:             #1a2535;
-  --popover-foreground:  #e8edf4;
+  --popover-foreground:  #f1f5f9;
   --primary:             #60a5fa; /* blue-400 — WCAG AA on dark backgrounds */
   --primary-foreground:  #0c1220;
   --secondary:           #243044; /* slightly warmer than pure slate */
-  --secondary-foreground:#e8edf4;
-  --muted:               #1e2d3f;
-  --muted-foreground:    #8ba3bf; /* improved contrast over slate-400 */
+  --secondary-foreground:#f1f5f9;
+  --muted:               #243044;
+  --muted-foreground:    #cbd5e1; /* slate-300 — AA on card and muted panel backgrounds */
   --accent:              #1b3354; /* dark blue */
   --accent-foreground:   #93c5fd; /* blue-300 */
   --destructive:         #f87171; /* red-400 — AA on dark */
@@ -101,14 +101,14 @@
   --warning-foreground:  #0c1220;
   --success:             #4ade80; /* green-400 — AA on dark */
   --success-foreground:  #0c1220;
-  --border:              #273548; /* subtle but visible */
-  --input:               #273548;
+  --border:              #334155; /* slate-700 — clearer dividers */
+  --input:               #334155;
   --ring:                #60a5fa; /* blue-400 */
 
   --sidebar:             #080f1a; /* darkest — below background */
-  --sidebar-foreground:  #d1dde8;
+  --sidebar-foreground:  #e2e8f0;
   --sidebar-muted:       #131e2e;
-  --sidebar-muted-foreground: #7a95b0;
+  --sidebar-muted-foreground: #b0c4d8;
   --sidebar-accent:      #3b82f6; /* blue-500 */
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border:      #131e2e;
@@ -198,5 +198,17 @@ body {
 
 .formula-scroll .katex {
   white-space: nowrap;
+  color: var(--foreground);
+}
+
+.formula-scroll .katex .mord,
+.formula-scroll .katex .mop,
+.formula-scroll .katex .mbin,
+.formula-scroll .katex .mrel,
+.formula-scroll .katex .mopen,
+.formula-scroll .katex .mclose,
+.formula-scroll .katex .mpunct,
+.formula-scroll .katex .minner {
+  color: inherit;
 }
 

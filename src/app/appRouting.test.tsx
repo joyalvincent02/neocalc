@@ -1,13 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RouterProvider, createMemoryRouter } from 'react-router-dom'
-import { routes } from './routes'
+import { RouterProvider, createMemoryRouter, type RouteObject } from 'react-router-dom'
 import { DISCLAIMER_TEXT } from '../config/safetyMessages'
 import { ThemeProvider } from '../hooks/useTheme'
+import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { AdditiveCalculatorPage } from '../features/additive-calculator/AdditiveCalculatorPage'
+import { GlucoseCalculatorPage } from '../features/glucose-calculator/GlucoseCalculatorPage'
+import { CombinedBurettePage } from '../features/combined-burette/CombinedBurettePage'
+
+const testRoutes: RouteObject[] = [
+  { path: '/', element: <DashboardPage /> },
+  { path: '/additives', element: <AdditiveCalculatorPage /> },
+  { path: '/glucose', element: <GlucoseCalculatorPage /> },
+  { path: '/combined', element: <CombinedBurettePage /> },
+]
 
 function renderAt(path: string) {
   window.localStorage.removeItem('neocalc.theme')
-  const router = createMemoryRouter(routes, { initialEntries: [path] })
+  const router = createMemoryRouter(testRoutes, { initialEntries: [path] })
   return render(
     <ThemeProvider>
       <RouterProvider router={router} />
@@ -26,8 +36,9 @@ describe('app routing + safety banner', () => {
   it('navigates to glucose page', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
-    // Wait for Suspense to resolve, then click sidebar nav link
-    await user.click(await screen.findByRole('link', { name: /glucose/i }))
+    await user.click(
+      await screen.findByRole('link', { name: /glucose strengthening/i }),
+    )
     expect(
       await screen.findByRole('heading', { name: /glucose strengthening/i }),
     ).toBeInTheDocument()
@@ -52,7 +63,8 @@ describe('app routing + safety banner', () => {
     // Default: system (light in tests per matchMedia mock)
     expect(root.classList.contains('dark')).toBe(false)
 
-    const toggle = await screen.findByRole('button', { name: /switch to light mode/i })
+    const toggles = await screen.findAllByRole('button', { name: /switch to light mode/i })
+    const toggle = toggles[0]!
 
     await user.click(toggle) // system → light
     expect(root.classList.contains('dark')).toBe(false)

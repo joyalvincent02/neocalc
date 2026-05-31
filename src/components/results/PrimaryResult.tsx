@@ -30,7 +30,7 @@ export function PrimaryResult({
     <div className="rounded-lg border-l-4 border-l-primary bg-primary/5 border border-primary/20 p-4">
       {/* Hero number */}
       <div className="text-center mb-4">
-        <div className="text-[10px] font-semibold uppercase tracking-widest text-primary/70 mb-1">
+        <div className="text-[10px] font-semibold uppercase tracking-widest text-primary mb-1">
           {label}
         </div>
         <div className="text-5xl font-semibold tabular-nums text-primary leading-none">

@@ -69,7 +69,7 @@ function StepRow({
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Exact
             </span>
-            <span className="font-mono text-xs tabular-nums text-muted-foreground">
+            <span className="font-mono text-xs tabular-nums text-foreground">
               {formatExactForDisplay(step.exact)}
               {step.unit ? ` ${step.unit}` : ''}
             </span>
@@ -81,7 +81,7 @@ function StepRow({
             <span className="font-mono text-sm font-semibold tabular-nums text-primary">
               {roundDecimalToString(step.exact, { dp: roundingDp })}
               {step.unit ? (
-                <span className="ml-0.5 text-xs font-normal text-primary/70">
+                <span className="ml-0.5 text-xs font-normal text-primary">
                   {step.unit}
                 </span>
               ) : null}

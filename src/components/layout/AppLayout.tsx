@@ -13,7 +13,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {/* Main content area — offset for desktop sidebar */}
       <div className="lg:pl-60 flex flex-col min-h-dvh">
         {/* Mobile top bar */}
-        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/80 backdrop-blur px-4 py-3">
+        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card dark:bg-card px-4 py-3">
           <MobileSidebar />
           <Link
             to="/"
@@ -27,7 +27,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
         </header>
 
         {/* Disclaimer banner — persistent safety notice, softer than inline clinical warnings */}
-        <div className="border-b border-warning/30 bg-warning/5 dark:bg-warning/10 px-4 py-2 text-xs text-amber-900/90 dark:text-amber-100/90">
+        <div className="border-b border-warning/40 bg-warning/10 dark:border-warning/40 dark:bg-warning/15 px-4 py-2 text-xs text-amber-950 dark:text-amber-50">
           <div className="mx-auto w-full max-w-4xl flex items-center gap-2">
             <Info
               className="h-3.5 w-3.5 shrink-0 text-warning"
