@@ -49,17 +49,9 @@ export function DashboardPage() {
             <Activity className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <div className="flex items-center gap-3 mb-1.5">
-              <h1 className="text-3xl font-semibold tracking-tight text-foreground">
-                Neonatal Fluid Calculators
-              </h1>
-              <Badge
-                variant="secondary"
-                className="font-mono text-[11px] text-muted-foreground hidden sm:inline-flex"
-              >
-                Protocol 2024
-              </Badge>
-            </div>
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground mb-1.5">
+              Neonatal Fluid Calculators
+            </h1>
             <p className="text-sm text-muted-foreground max-w-xl">
               Evidence-based calculation tools for neonatal fluid, electrolyte, and glucose
               management. Select a calculator to get started.
@@ -104,13 +96,6 @@ export function DashboardPage() {
               </div>
             </Link>
           ))}
-        </div>
-
-        {/* Note */}
-        <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-xs text-muted-foreground">
-          <span className="font-medium text-foreground">Note: </span>
-          All calculations are for decision-support only. Always verify results with an
-          independent check and confirm against your local hospital formulary and policy.
         </div>
       </div>
     </AppLayout>

@@ -1,10 +1,10 @@
 import { useRef, useEffect } from 'react'
 import { AppLayout } from '../../components/layout/AppLayout'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { calculateGlucoseStrengthening } from '../../calculations/glucose/glucoseCalculator'
 import { useCalculationResult } from '../../hooks/useCalculationResult'
 import { useRoundingPrecision } from '../../hooks/useRoundingPrecision'
 import { SettingsPopover } from '../../components/forms/SettingsPopover'
+import { ParametersCard } from '../../components/forms/ParametersCard'
 import { GlucoseCalculatorForm } from './GlucoseCalculatorForm'
 import { GlucoseResult } from './GlucoseResult'
 import type { GlucoseCalculatorResult } from '../../calculations/glucose/glucoseTypes'
@@ -13,7 +13,7 @@ import type { GlucoseFormValues } from './glucoseFormSchema'
 export function GlucoseCalculatorPage() {
   const { dp, setDp } = useRoundingPrecision()
   const resultRef = useRef<HTMLDivElement>(null)
-  const { lastInput, result, run } = useCalculationResult<
+  const { lastInput, result, run, submissionCount } = useCalculationResult<
     GlucoseFormValues,
     GlucoseCalculatorResult
   >((values) => {
@@ -43,11 +43,13 @@ export function GlucoseCalculatorPage() {
     return { ...engine, warnings: [...warnings, ...engine.warnings] }
   })
 
+  const hasResult = Boolean(lastInput && result)
+
   useEffect(() => {
-    if (lastInput && result && resultRef.current) {
+    if (hasResult && resultRef.current) {
       resultRef.current.focus()
     }
-  }, [lastInput, result])
+  }, [hasResult, lastInput, result])
 
   return (
     <AppLayout>
@@ -61,22 +63,14 @@ export function GlucoseCalculatorPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-sm">Parameters</CardTitle>
-                <CardDescription className="text-xs mt-0.5">
-                  Enter fluid details below
-                </CardDescription>
-              </div>
-              <SettingsPopover roundingDp={dp} onRoundingDpChange={setDp} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <GlucoseCalculatorForm defaultValues={{ reservedAdditiveVolumeMl: 2 }} onSubmit={run} />
-          </CardContent>
-        </Card>
+        <ParametersCard
+          description="Enter fluid details below"
+          hasResult={hasResult}
+          submissionCount={submissionCount}
+          settings={<SettingsPopover roundingDp={dp} onRoundingDpChange={setDp} />}
+        >
+          <GlucoseCalculatorForm defaultValues={{ reservedAdditiveVolumeMl: 2 }} onSubmit={run} />
+        </ParametersCard>
 
         <div
           ref={resultRef}
@@ -86,12 +80,12 @@ export function GlucoseCalculatorPage() {
           aria-label="Calculation results"
           tabIndex={-1}
         >
-          {lastInput && result ? (
+          {hasResult ? (
             <div className="result-enter">
-              <GlucoseResult input={lastInput} result={result} roundingDp={dp} />
+              <GlucoseResult input={lastInput!} result={result!} roundingDp={dp} />
             </div>
           ) : (
-            <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
+            <div className="hidden lg:flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Results will appear here

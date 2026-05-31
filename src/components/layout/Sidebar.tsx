@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { FlaskConical, Droplets, Layers, Menu } from 'lucide-react'
+import { FlaskConical, Droplets, Layers, Menu, X } from 'lucide-react'
 import { ThemeToggle } from './ThemeToggle'
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
+import { Sheet, SheetClose, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -35,7 +36,7 @@ const navItems: NavItem[] = [
 
 function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   return (
-    <nav className="flex flex-col gap-1 px-3 py-2">
+    <nav className="flex flex-col gap-1">
       {navItems.map((item) => (
         <NavLink
           key={item.to}
@@ -43,17 +44,17 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
           onClick={onNavigate}
           className={({ isActive }) =>
             cn(
-              'group relative flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors',
+              'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors',
               isActive
-                ? 'bg-sidebar-accent/20 text-sidebar-accent-foreground font-medium border-l-2 border-l-sidebar-accent pl-[10px]'
-                : 'text-sidebar-foreground hover:bg-sidebar-muted border-l-2 border-l-transparent pl-[10px]',
+                ? 'bg-sidebar-accent/15 font-medium text-sidebar-foreground'
+                : 'text-sidebar-muted-foreground hover:bg-sidebar-muted hover:text-sidebar-foreground',
             )
           }
         >
           <span
             className={cn(
-              'flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-colors',
-              'bg-sidebar-muted group-[.active]:bg-sidebar-accent/30',
+              'flex h-8 w-8 shrink-0 items-center justify-center rounded-md',
+              'bg-sidebar-muted text-sidebar-foreground',
             )}
           >
             {item.icon}
@@ -70,18 +71,28 @@ function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
   )
 }
 
-function SidebarBrand() {
+function SidebarBrand({
+  onNavigate,
+  compact,
+}: {
+  onNavigate?: () => void
+  compact?: boolean
+}) {
   return (
     <NavLink
       to="/"
-      className="flex items-center gap-3 px-6 py-5 hover:opacity-90 transition-opacity"
+      onClick={onNavigate}
+      className={cn(
+        'flex items-center gap-3 hover:opacity-90 transition-opacity',
+        compact ? 'min-w-0 flex-1 px-4 py-3.5' : 'px-5 py-5',
+      )}
     >
       <img
         src="/NeoCalc.svg"
         alt="NeoCalc logo"
-        className="h-9 w-9 object-contain"
+        className="h-9 w-9 shrink-0 object-contain"
       />
-      <div>
+      <div className="min-w-0">
         <div className="text-sm font-bold text-sidebar-foreground">NeoCalc</div>
         <div className="text-xs text-sidebar-muted-foreground">
           Neonatal Calculators
@@ -94,11 +105,13 @@ function SidebarBrand() {
 export function DesktopSidebar() {
   return (
     <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:fixed lg:inset-y-0 bg-sidebar border-r border-sidebar-border">
-      <SidebarBrand />
-      <div className="flex-1 overflow-auto py-2">
+      <div className="border-b border-sidebar-border">
+        <SidebarBrand />
+      </div>
+      <div className="flex-1 overflow-auto px-3 py-4">
         <SidebarNav />
       </div>
-      <div className="px-4 py-4 border-t border-sidebar-border">
+      <div className="border-t border-sidebar-border px-5 py-4">
         <ThemeToggle />
       </div>
     </aside>
@@ -106,18 +119,36 @@ export function DesktopSidebar() {
 }
 
 export function MobileSidebar() {
+  const [open, setOpen] = useState(false)
+
   return (
-    <Sheet>
+    <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button variant="ghost" size="icon" className="lg:hidden text-foreground">
           <Menu className="h-5 w-5" />
           <span className="sr-only">Open navigation</span>
         </Button>
       </SheetTrigger>
-      <SheetContent side="left" className="w-64 bg-sidebar p-0 border-sidebar-border">
-        <SidebarBrand />
-        <div className="flex-1 py-2">
-          <SidebarNav />
+      <SheetContent
+        side="left"
+        showCloseButton={false}
+        className="flex w-64 flex-col bg-sidebar p-0 border-sidebar-border"
+      >
+        <div className="flex items-center border-b border-sidebar-border pr-2">
+          <SidebarBrand compact onNavigate={() => setOpen(false)} />
+          <SheetClose asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 shrink-0 text-sidebar-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-muted"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close navigation</span>
+            </Button>
+          </SheetClose>
+        </div>
+        <div className="flex-1 overflow-auto px-3 py-4">
+          <SidebarNav onNavigate={() => setOpen(false)} />
         </div>
       </SheetContent>
     </Sheet>

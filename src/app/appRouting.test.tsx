@@ -43,7 +43,7 @@ describe('app routing + safety banner', () => {
     expect(screen.getByText(/Per 100 mL burette/i)).toBeInTheDocument()
   })
 
-  it('switches theme via the segmented theme control', async () => {
+  it('cycles theme via the toggle switch', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
 
@@ -52,14 +52,15 @@ describe('app routing + safety banner', () => {
     // Default: system (light in tests per matchMedia mock)
     expect(root.classList.contains('dark')).toBe(false)
 
-    // Wait for Suspense, then click "Dark mode" button
-    const darkButton = await screen.findByRole('button', { name: /dark mode/i })
-    await user.click(darkButton)
+    const toggle = await screen.findByRole('button', { name: /switch to light mode/i })
+
+    await user.click(toggle) // system → light
+    expect(root.classList.contains('dark')).toBe(false)
+
+    await user.click(toggle) // light → dark
     expect(root.classList.contains('dark')).toBe(true)
 
-    // Click "Light mode" button
-    const lightButton = screen.getByRole('button', { name: /light mode/i })
-    await user.click(lightButton)
+    await user.click(toggle) // dark → system (light in tests)
     expect(root.classList.contains('dark')).toBe(false)
   })
 })

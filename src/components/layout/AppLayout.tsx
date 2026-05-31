@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { Info } from 'lucide-react'
 import { DISCLAIMER_TEXT } from '../../config/safetyMessages'
 import { DesktopSidebar, MobileSidebar } from './Sidebar'
@@ -14,18 +15,22 @@ export function AppLayout({ children }: { children: ReactNode }) {
         {/* Mobile top bar */}
         <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/80 backdrop-blur px-4 py-3">
           <MobileSidebar />
-          <div className="flex flex-1 items-center gap-2 min-w-0">
-            <img src="/NeoCalc.svg" alt="NeoCalc logo" className="h-6 w-6 object-contain" />
+          <Link
+            to="/"
+            className="flex flex-1 items-center gap-2 min-w-0 hover:opacity-90 transition-opacity"
+            aria-label="NeoCalc home"
+          >
+            <img src="/NeoCalc.svg" alt="" className="h-6 w-6 object-contain" aria-hidden="true" />
             <div className="text-sm font-bold text-foreground">NeoCalc</div>
-          </div>
+          </Link>
           <ThemeToggle />
         </header>
 
-        {/* Disclaimer banner — informational only, recedes visually */}
-        <div className="border-b border-border bg-muted/40 px-4 py-2 text-xs text-muted-foreground">
+        {/* Disclaimer banner — persistent safety notice, softer than inline clinical warnings */}
+        <div className="border-b border-warning/30 bg-warning/5 dark:bg-warning/10 px-4 py-2 text-xs text-amber-900/90 dark:text-amber-100/90">
           <div className="mx-auto w-full max-w-4xl flex items-center gap-2">
             <Info
-              className="h-3.5 w-3.5 shrink-0 text-muted-foreground"
+              className="h-3.5 w-3.5 shrink-0 text-warning"
               aria-hidden="true"
             />
             <span>{DISCLAIMER_TEXT}</span>

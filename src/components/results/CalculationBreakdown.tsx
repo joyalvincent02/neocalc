@@ -64,7 +64,7 @@ function StepRow({
         </div>
 
         {/* Exact vs Rounded */}
-        <div className="flex flex-wrap gap-x-6 gap-y-1 mt-1">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
           <div className="flex items-baseline gap-1.5">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
               Exact
@@ -74,14 +74,14 @@ function StepRow({
               {step.unit ? ` ${step.unit}` : ''}
             </span>
           </div>
-          <div className="flex items-baseline gap-1.5">
+          <div className="flex items-baseline gap-1.5 rounded-md bg-primary/5 px-2 py-1">
             <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">
               Rounded
             </span>
-            <span className="font-mono text-sm font-semibold tabular-nums text-foreground">
+            <span className="font-mono text-sm font-semibold tabular-nums text-primary">
               {roundDecimalToString(step.exact, { dp: roundingDp })}
               {step.unit ? (
-                <span className="ml-0.5 text-xs font-normal text-muted-foreground">
+                <span className="ml-0.5 text-xs font-normal text-primary/70">
                   {step.unit}
                 </span>
               ) : null}
@@ -128,13 +128,30 @@ export function CalculationBreakdown({
 
       {open && (
         <div className="px-4 pb-4 pt-1">
-          <div className="text-xs text-muted-foreground mb-4 flex items-center gap-4">
-            <span>
-              <span className="font-semibold text-muted-foreground">Exact</span> = intermediate value (6 d.p.)
-            </span>
-            <span>
-              <span className="font-semibold text-primary">Rounded</span> = value at selected d.p. — use this
-            </span>
+          <div className="mb-4 grid grid-cols-1 gap-px overflow-hidden rounded-md border border-border bg-border sm:grid-cols-[1fr_auto_1fr]">
+            <div className="bg-muted/30 px-3 py-2.5">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                Exact
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground leading-snug">
+                Intermediate step value, shown to 6 decimal places for verification.
+              </p>
+            </div>
+            <div className="hidden sm:block w-px bg-border" aria-hidden="true" />
+            <div className="h-px sm:hidden bg-border" aria-hidden="true" />
+            <div className="bg-primary/5 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] font-semibold uppercase tracking-widest text-primary">
+                  Rounded
+                </span>
+                <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[10px] font-medium text-primary">
+                  Use this
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground leading-snug">
+                Value at your selected precision ({roundingDp} d.p.) — use for clinical preparation.
+              </p>
+            </div>
           </div>
           <ol className="space-y-0" aria-label="Calculation steps">
             {steps.map((s, idx) => (
