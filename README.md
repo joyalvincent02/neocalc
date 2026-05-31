@@ -1,73 +1,83 @@
-# React + TypeScript + Vite
+# NeoCalc
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Evidence-based neonatal fluid calculation tools for electrolyte and glucose management, built for clinical decision support.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Three calculators are available from the dashboard:
 
-## React Compiler
+| Calculator | Purpose |
+|---|---|
+| **Additive Calculator** | Calculates mL of NaCl / KCl additive required per burette based on patient weight, daily requirement, stock strength, and maintenance rate |
+| **Glucose Strengthening** | Determines the optimal mix of base and additive glucose solutions to achieve a target concentration and glucose infusion rate (GIR) |
+| **Combined Burette** | All-in-one calculator — reserves space for NaCl, KCl, and calcium gluconate, then solves glucose strengthening in the remaining volume |
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Additional features:
 
-## Expanding the ESLint configuration
+- Light / dark theme
+- Adjustable rounding precision on all results
+- Step-by-step calculation breakdown with rendered equations (KaTeX)
+- Inline safety warnings (e.g. peripheral line glucose limits)
+- All inputs validated with Zod; errors shown inline
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+> **Note:** All calculations are for decision-support only. Always verify results with an independent check and confirm against your local hospital formulary and policy.
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Tech Stack
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- [React 19](https://react.dev) + [TypeScript](https://www.typescriptlang.org)
+- [Vite](https://vite.dev) (build tool)
+- [Tailwind CSS v4](https://tailwindcss.com) + [shadcn/ui](https://ui.shadcn.com) (Radix UI primitives)
+- [React Hook Form](https://react-hook-form.com) + [Zod](https://zod.dev) (forms & validation)
+- [React KaTeX](https://github.com/talyssonoc/react-katex) (math rendering)
+- [Decimal.js](https://mikemcl.github.io/decimal.js/) (arbitrary-precision arithmetic)
+- [Vitest](https://vitest.dev) + [Testing Library](https://testing-library.com) (unit tests)
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Getting Started
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+The app runs at `http://localhost:5173` by default.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Available Scripts
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+| Script | Description |
+|---|---|
+| `npm run dev` | Start the development server |
+| `npm run build` | Type-check and build for production |
+| `npm run preview` | Preview the production build locally |
+| `npm run lint` | Run ESLint |
+| `npm run test` | Run all unit tests once |
+| `npm run test:watch` | Run tests in watch mode |
+
+## Project Structure
+
+```
+src/
+├── app/              # Router setup and route definitions
+├── calculations/     # Pure calculation engines (additive, glucose, combined)
+│   └── shared/       # Shared utilities (units, rounding, validation)
+├── components/       # Shared UI components (forms, layout, results)
+├── config/           # Default protocols, presets, and safety messages
+├── features/         # Page-level feature modules (one folder per calculator)
+├── hooks/            # Custom React hooks
+└── lib/              # General utilities
+```
+
+## Calculation Logic
+
+Each calculator's algorithm is documented alongside the implementation:
+
+- [`src/features/additive-calculator/ADDITIVE_CALCULATION.md`](src/features/additive-calculator/ADDITIVE_CALCULATION.md) — 6-step weight-based electrolyte additive algorithm
+- [`src/features/glucose-calculator/GLUCOSE_CALCULATION.md`](src/features/glucose-calculator/GLUCOSE_CALCULATION.md) — 8-step hospital quota workflow for glucose strengthening
+- [`src/features/combined-burette/COMBINED_BURETTE_CALCULATION.md`](src/features/combined-burette/COMBINED_BURETTE_CALCULATION.md) — 5-phase combined burette algorithm
+
+## Deployment
+
+The project includes a [`vercel.json`](vercel.json) for deployment to [Vercel](https://vercel.com).
+
+```bash
+npm run build   # outputs to dist/
 ```
