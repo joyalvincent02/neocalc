@@ -59,33 +59,32 @@ function SidebarBrand({
   compact?: boolean
 }) {
   return (
-    <NavLink
-      to="/"
-      onClick={onNavigate}
-      className={cn(
-        'flex items-center gap-3 hover:opacity-90 transition-opacity',
-        compact ? 'min-w-0 flex-1 px-4 py-3.5' : 'px-5 py-5',
-      )}
-    >
-      <img
-        src="/NeoCalc.svg"
-        alt="NeoCalc logo"
-        className="h-9 w-9 shrink-0 object-contain"
-      />
-      <div className="min-w-0">
-        <div className="text-sm font-bold text-sidebar-foreground">NeoCalc</div>
-        <div className="text-xs text-sidebar-muted-foreground">
-          Neonatal Calculators
+    <div className={cn(compact && 'min-w-0 flex-1 px-4 py-3.5')}>
+      <NavLink
+        to="/"
+        onClick={onNavigate}
+        className="inline-flex items-center gap-3 hover:opacity-90 transition-opacity"
+      >
+        <img
+          src="/NeoCalc.svg"
+          alt="NeoCalc logo"
+          className="h-9 w-9 shrink-0 object-contain"
+        />
+        <div className="min-w-0">
+          <div className="text-sm font-bold text-sidebar-foreground">NeoCalc</div>
+          <div className="text-xs text-sidebar-muted-foreground">
+            Neonatal Calculators
+          </div>
         </div>
-      </div>
-    </NavLink>
+      </NavLink>
+    </div>
   )
 }
 
 export function DesktopSidebar() {
   return (
     <aside className="hidden lg:flex lg:w-60 lg:flex-col lg:fixed lg:inset-y-0 bg-sidebar border-r border-sidebar-border">
-      <div className="border-b border-sidebar-border">
+      <div className="border-b border-sidebar-border px-5 py-5">
         <SidebarBrand />
       </div>
       <div className="flex-1 overflow-auto px-3 py-4">

@@ -35,19 +35,20 @@ export function ThemeToggle() {
       title={title}
       aria-label={title}
       className={cn(
-        'relative inline-flex h-7 w-14 items-center rounded-full transition-colors duration-200 ease-in-out',
-        'bg-muted dark:bg-secondary',
+        'relative inline-flex h-7 w-14 items-center rounded-full border border-slate-400 bg-slate-300 transition-colors duration-200 ease-in-out',
+        'dark:border-transparent dark:bg-secondary',
         'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       )}
     >
       <span className="sr-only">Toggle theme</span>
       <span
         className={cn(
-          'pointer-events-none inline-flex h-6 w-6 transform items-center justify-center rounded-full bg-background shadow-lg ring-0 transition duration-200 ease-in-out motion-reduce:transition-none',
+          'pointer-events-none inline-flex h-6 w-6 transform items-center justify-center rounded-full border border-slate-300 bg-white shadow-md transition duration-200 ease-in-out motion-reduce:transition-none',
+          'dark:border-transparent dark:bg-background dark:shadow-lg',
           effectiveTheme === 'dark' ? 'translate-x-7' : 'translate-x-0.5',
         )}
       >
-        <span className="flex items-center justify-center text-muted-foreground">
+        <span className="flex items-center justify-center text-slate-700 dark:text-muted-foreground">
           {icon}
         </span>
       </span>

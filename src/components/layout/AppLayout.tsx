@@ -17,12 +17,13 @@ export function AppLayout({ children }: { children: ReactNode }) {
           <MobileSidebar />
           <Link
             to="/"
-            className="flex flex-1 items-center gap-2 min-w-0 hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 shrink-0 hover:opacity-90 transition-opacity"
             aria-label="NeoCalc home"
           >
             <img src="/NeoCalc.svg" alt="" className="h-6 w-6 object-contain" aria-hidden="true" />
             <div className="text-sm font-bold text-foreground">NeoCalc</div>
           </Link>
+          <div className="flex-1" aria-hidden="true" />
           <ThemeToggle />
         </header>
 
