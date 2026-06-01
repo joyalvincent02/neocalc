@@ -17,3 +17,13 @@ export function roundDecimalToString(value: Decimal, spec: RoundingSpec): string
   return value.toFixed(dp)
 }
 
+/** Decimal places for intermediate "exact" values shown in breakdowns (not used in computation). */
+export const EXACT_DISPLAY_DP = 6
+
+/** Format a computed Decimal for breakdown display — enough precision to verify, not full engine precision. */
+export function formatExactForDisplay(value: Decimal, dp: number = EXACT_DISPLAY_DP): string {
+  const fixed = value.toFixed(dp)
+  if (!fixed.includes('.')) return fixed
+  return fixed.replace(/\.?0+$/, '')
+}
+

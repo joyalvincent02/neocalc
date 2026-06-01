@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Info } from 'lucide-react'
 import { DISCLAIMER_TEXT } from '../../config/safetyMessages'
 import { DesktopSidebar, MobileSidebar } from './Sidebar'
 import { ThemeToggle } from './ThemeToggle'
@@ -12,26 +13,28 @@ export function AppLayout({ children }: { children: ReactNode }) {
       {/* Main content area — offset for desktop sidebar */}
       <div className="lg:pl-60 flex flex-col min-h-dvh">
         {/* Mobile top bar */}
-        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card/80 backdrop-blur px-4 py-3">
+        <header className="lg:hidden sticky top-0 z-40 flex items-center gap-3 border-b border-border bg-card dark:bg-card px-4 py-3">
           <MobileSidebar />
-          <div className="flex flex-1 items-center gap-2 min-w-0">
-            <img src="/NeoCalc.svg" alt="NeoCalc logo" className="h-6 w-6 object-contain" />
+          <Link
+            to="/"
+            className="flex items-center gap-2 shrink-0 hover:opacity-90 transition-opacity"
+            aria-label="NeoCalc home"
+          >
+            <img src="/NeoCalc.svg" alt="" className="h-6 w-6 object-contain" aria-hidden="true" />
             <div className="text-sm font-bold text-foreground">NeoCalc</div>
-          </div>
+          </Link>
+          <div className="flex-1" aria-hidden="true" />
           <ThemeToggle />
         </header>
 
-        {/* Disclaimer banner */}
-        <div className="border-b border-warning/30 bg-warning/10 px-4 py-2.5 text-sm text-foreground">
-          <div className="mx-auto w-full max-w-4xl flex items-start gap-2">
-            <AlertTriangle
-              className="mt-0.5 h-4 w-4 shrink-0 text-warning"
+        {/* Disclaimer banner — persistent safety notice, softer than inline clinical warnings */}
+        <div className="border-b border-warning/40 bg-warning/10 dark:border-warning/40 dark:bg-warning/15 px-4 py-2 text-xs text-amber-950 dark:text-amber-50">
+          <div className="mx-auto w-full max-w-4xl flex items-center gap-2">
+            <Info
+              className="h-3.5 w-3.5 shrink-0 text-warning"
               aria-hidden="true"
             />
-            <span>
-              <span className="font-semibold text-warning">Disclaimer: </span>
-              {DISCLAIMER_TEXT}
-            </span>
+            <span>{DISCLAIMER_TEXT}</span>
           </div>
         </div>
 

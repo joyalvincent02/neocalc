@@ -3,6 +3,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { GLUCOSE_PRESETS } from '../../config/glucosePresets'
 import { NumberField } from '../../components/forms/NumberField'
 import { SelectField } from '../../components/forms/SelectField'
+import { FormSection } from '../../components/forms/FormSection'
 import { Button } from '@/components/ui/button'
 import {
   glucoseFormSchema,
@@ -38,14 +39,15 @@ export function GlucoseCalculatorForm({
   } = form
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit((v) => onSubmit(v))}>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+    <form className="space-y-5" onSubmit={handleSubmit((v) => onSubmit(v))}>
+      <FormSection title="Target">
         <Controller
           control={control}
           name="targetGlucosePercent"
           render={({ field }) => (
             <NumberField
-              label="Target Glucose %"
+              label="Target glucose"
+              unit="%"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.1}
@@ -59,7 +61,7 @@ export function GlucoseCalculatorForm({
           name="buretteSizeMl"
           render={({ field }) => (
             <SelectField
-              label="Burette size (mL)"
+              label="Burette size"
               value={String(field.value)}
               onChange={field.onChange}
               options={DEFAULT_PROTOCOL.buretteSizesMl.map((n) => ({
@@ -70,12 +72,15 @@ export function GlucoseCalculatorForm({
             />
           )}
         />
+      </FormSection>
+
+      <FormSection title="Stock solutions">
         <Controller
           control={control}
           name="baseGlucosePercent"
           render={({ field }) => (
             <SelectField
-              label="Base glucose (%)"
+              label="Base glucose"
               value={String(field.value)}
               onChange={(v) => field.onChange(Number(v))}
               options={GLUCOSE_PRESETS.map((p) => ({
@@ -91,7 +96,7 @@ export function GlucoseCalculatorForm({
           name="additiveGlucosePercent"
           render={({ field }) => (
             <SelectField
-              label="Additive glucose (%)"
+              label="Additive glucose"
               value={String(field.value)}
               onChange={(v) => field.onChange(Number(v))}
               options={GLUCOSE_PRESETS.map((p) => ({
@@ -102,12 +107,16 @@ export function GlucoseCalculatorForm({
             />
           )}
         />
+      </FormSection>
+
+      <FormSection title="Reserved volume">
         <Controller
           control={control}
           name="reservedAdditiveVolumeMl"
           render={({ field }) => (
             <NumberField
-              label="Reserved additive volume (mL)"
+              label="Reserved additive volume"
+              unit="mL"
               value={String(field.value ?? '')}
               onChange={field.onChange}
               step={0.1}
@@ -116,9 +125,9 @@ export function GlucoseCalculatorForm({
             />
           )}
         />
-      </div>
+      </FormSection>
 
-      <Button type="submit" className="w-full">
+      <Button type="submit" size="lg" className="w-full">
         Calculate
       </Button>
     </form>

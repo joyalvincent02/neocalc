@@ -1,22 +1,38 @@
 import 'katex/dist/katex.min.css'
-import { BlockMath } from 'react-katex'
+import { InlineMath } from 'react-katex'
+import { cn } from '@/lib/utils'
 
 export function MathBlock({
   latex,
   fallback,
+  compact = false,
 }: {
   latex: string
   fallback: string
+  compact?: boolean
 }) {
+  const math = compact
+    ? `{\\small \\displaystyle ${latex}}`
+    : `{\\displaystyle ${latex}}`
+
   try {
     return (
-      <div className="overflow-x-auto">
-        <BlockMath math={latex} />
+      <div
+        className={cn(
+          'formula-scroll px-3 py-1.5',
+          compact ? 'formula-scroll-compact' : 'formula-scroll-default',
+        )}
+        tabIndex={0}
+        aria-label="Formula — scroll horizontally if needed"
+      >
+        <div className="formula-scroll-inner">
+          <InlineMath math={math} />
+        </div>
       </div>
     )
   } catch {
     return (
-      <pre className="overflow-x-auto whitespace-pre-wrap rounded-md border border-border bg-card px-2 py-1 font-mono text-[11px] leading-snug text-foreground">
+      <pre className="formula-scroll px-3 py-1.5 font-mono text-[11px] leading-snug whitespace-pre text-foreground">
         {fallback}
       </pre>
     )

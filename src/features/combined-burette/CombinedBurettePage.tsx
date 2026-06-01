@@ -1,9 +1,10 @@
+import { useRef, useEffect } from 'react'
 import { AppLayout } from '../../components/layout/AppLayout'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { calculateCombinedBurette } from '../../calculations/combined/combinedBuretteCalculator'
 import { useCalculationResult } from '../../hooks/useCalculationResult'
 import { useRoundingPrecision } from '../../hooks/useRoundingPrecision'
-import { RoundingControl } from '../../components/forms/RoundingControl'
+import { SettingsPopover } from '../../components/forms/SettingsPopover'
+import { ParametersCard } from '../../components/forms/ParametersCard'
 import { CombinedBuretteForm } from './CombinedBuretteForm'
 import { CombinedBuretteResultView } from './CombinedBuretteResult'
 import type { CombinedBuretteResult } from '../../calculations/combined/combinedTypes'
@@ -11,7 +12,8 @@ import type { CombinedFormValues } from './combinedFormSchema'
 
 export function CombinedBurettePage() {
   const { dp, setDp } = useRoundingPrecision()
-  const { lastInput, result, run } = useCalculationResult<
+  const resultRef = useRef<HTMLDivElement>(null)
+  const { lastInput, result, run, submissionCount } = useCalculationResult<
     CombinedFormValues,
     CombinedBuretteResult
   >((values) =>
@@ -39,10 +41,18 @@ export function CombinedBurettePage() {
     ),
   )
 
+  const hasResult = Boolean(lastInput && result)
+
+  useEffect(() => {
+    if (hasResult && resultRef.current) {
+      resultRef.current.focus()
+    }
+  }, [hasResult, lastInput, result])
+
   return (
     <AppLayout>
       <div className="space-y-1 mb-6">
-        <h1 className="text-xl font-bold tracking-tight text-foreground">
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
           Combined Burette
         </h1>
         <p className="text-sm text-muted-foreground">
@@ -52,28 +62,29 @@ export function CombinedBurettePage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-sm">Parameters</CardTitle>
-                <CardDescription className="text-xs mt-0.5">
-                  Enter patient, fluid, and electrolyte details
-                </CardDescription>
-              </div>
-              <RoundingControl value={dp} onChange={setDp} />
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CombinedBuretteForm defaultValues={{}} onSubmit={run} />
-          </CardContent>
-        </Card>
+        <ParametersCard
+          description="Enter patient, fluid, and electrolyte details"
+          hasResult={hasResult}
+          submissionCount={submissionCount}
+          settings={<SettingsPopover roundingDp={dp} onRoundingDpChange={setDp} />}
+        >
+          <CombinedBuretteForm defaultValues={{}} onSubmit={run} />
+        </ParametersCard>
 
-        <div className="space-y-4">
-          {lastInput && result ? (
-            <CombinedBuretteResultView input={lastInput} result={result} roundingDp={dp} />
+        <div
+          ref={resultRef}
+          className="space-y-4 outline-none"
+          role="status"
+          aria-live="polite"
+          aria-label="Calculation results"
+          tabIndex={-1}
+        >
+          {hasResult ? (
+            <div className="result-enter">
+              <CombinedBuretteResultView input={lastInput!} result={result!} roundingDp={dp} />
+            </div>
           ) : (
-            <div className="flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
+            <div className="hidden lg:flex items-center justify-center rounded-lg border border-dashed border-border bg-muted/20 p-12 text-center">
               <div>
                 <p className="text-sm font-medium text-muted-foreground">
                   Results will appear here

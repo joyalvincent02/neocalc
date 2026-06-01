@@ -22,6 +22,8 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-warning: var(--warning);
   --color-warning-foreground: var(--warning-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
@@ -36,6 +38,8 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
 }
 
 :root {
@@ -53,57 +57,61 @@
   --secondary:           #f1f5f9; /* slate-100 */
   --secondary-foreground:#0f172a;
   --muted:               #f1f5f9; /* slate-100 */
-  --muted-foreground:    #64748b; /* slate-500 */
+  --muted-foreground:    #334155; /* slate-700 — stronger secondary text on white */
   --accent:              #eff6ff; /* blue-50 */
-  --accent-foreground:   #1d4ed8; /* blue-700 */
+  --accent-foreground:   #1e40af; /* blue-800 — AA link contrast on light surfaces */
   --destructive:         #dc2626; /* red-600 */
   --destructive-foreground: #ffffff;
-  --warning:             #d97706; /* amber-600 */
+  --warning:             #b45309; /* amber-700 — readable warning text on light tints */
   --warning-foreground:  #ffffff;
-  --border:              #e2e8f0; /* slate-200 */
-  --input:               #e2e8f0;
+  --success:             #15803d; /* green-700 */
+  --success-foreground:  #ffffff;
+  --border:              #cbd5e1; /* slate-300 — clearer dividers and inputs */
+  --input:               #cbd5e1;
   --ring:                #1d4ed8; /* blue-700 */
 
   /* Sidebar — dark navy for clinical authority */
   --sidebar:             #1e293b; /* slate-800 */
   --sidebar-foreground:  #e2e8f0; /* slate-200 */
   --sidebar-muted:       #334155; /* slate-700 */
-  --sidebar-muted-foreground: #94a3b8; /* slate-400 */
+  --sidebar-muted-foreground: #cbd5e1; /* slate-300 — clearer inactive nav labels */
   --sidebar-accent:      #3b82f6; /* blue-500 */
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border:      #334155; /* slate-700 */
 }
 
 .dark {
-  --background:          #0f172a; /* slate-900 */
-  --foreground:          #f1f5f9; /* slate-100 */
-  --card:                #1e293b; /* slate-800 */
+  --background:          #0c1220; /* deeper than slate-900 for better card separation */
+  --foreground:          #f1f5f9; /* slate-100 — stronger body text on dark surfaces */
+  --card:                #1a2535; /* lifted above background for clear separation */
   --card-foreground:     #f1f5f9;
-  --popover:             #1e293b;
+  --popover:             #1a2535;
   --popover-foreground:  #f1f5f9;
-  --primary:             #3b82f6; /* blue-500 */
-  --primary-foreground:  #ffffff;
-  --secondary:           #334155; /* slate-700 */
+  --primary:             #60a5fa; /* blue-400 — WCAG AA on dark backgrounds */
+  --primary-foreground:  #0c1220;
+  --secondary:           #243044; /* slightly warmer than pure slate */
   --secondary-foreground:#f1f5f9;
-  --muted:               #334155;
-  --muted-foreground:    #94a3b8; /* slate-400 */
-  --accent:              #1e3a5f; /* custom dark blue */
+  --muted:               #243044;
+  --muted-foreground:    #cbd5e1; /* slate-300 — AA on card and muted panel backgrounds */
+  --accent:              #1b3354; /* dark blue */
   --accent-foreground:   #93c5fd; /* blue-300 */
-  --destructive:         #ef4444; /* red-500 */
-  --destructive-foreground: #ffffff;
-  --warning:             #f59e0b; /* amber-400 */
-  --warning-foreground:  #0f172a;
-  --border:              #334155; /* slate-700 */
+  --destructive:         #f87171; /* red-400 — AA on dark */
+  --destructive-foreground: #0c1220;
+  --warning:             #fbbf24; /* amber-400 */
+  --warning-foreground:  #0c1220;
+  --success:             #4ade80; /* green-400 — AA on dark */
+  --success-foreground:  #0c1220;
+  --border:              #334155; /* slate-700 — clearer dividers */
   --input:               #334155;
-  --ring:                #3b82f6; /* blue-500 */
+  --ring:                #60a5fa; /* blue-400 */
 
-  --sidebar:             #0f172a; /* slate-900 */
+  --sidebar:             #080f1a; /* darkest — below background */
   --sidebar-foreground:  #e2e8f0;
-  --sidebar-muted:       #1e293b; /* slate-800 */
-  --sidebar-muted-foreground: #94a3b8;
-  --sidebar-accent:      #2563eb; /* blue-600 */
+  --sidebar-muted:       #131e2e;
+  --sidebar-muted-foreground: #b0c4d8;
+  --sidebar-accent:      #3b82f6; /* blue-500 */
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border:      #1e293b;
+  --sidebar-border:      #131e2e;
 }
 
 html,
@@ -115,10 +123,92 @@ body {
   margin: 0;
   background-color: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 * {
   border-color: var(--border);
   outline-color: var(--ring);
+}
+
+/* Tabular numerals for all clinical numeric output */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Monospace numerics — equations and exact values */
+.mono-nums {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Micro-interactions ───────────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Result panel entrance — applied by React when results appear */
+.result-enter {
+  animation: fadeInUp 200ms ease-out both;
+}
+
+/* Staggered breakdown steps */
+.step-enter {
+  animation: fadeIn 150ms ease-out both;
+}
+
+/* Honour reduced-motion preference — disable all custom animations */
+@media (prefers-reduced-motion: reduce) {
+  .result-enter,
+  .step-enter {
+    animation: none;
+  }
+}
+
+/* ── Formula horizontal scroll (long KaTeX on narrow viewports) ───────────── */
+
+.formula-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+  min-width: 0;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-x: contain;
+}
+
+.formula-scroll-inner {
+  width: max-content;
+  margin-inline: auto;
+}
+
+.formula-scroll .katex {
+  white-space: nowrap;
+  color: var(--foreground);
+}
+
+.formula-scroll .katex .mord,
+.formula-scroll .katex .mop,
+.formula-scroll .katex .mbin,
+.formula-scroll .katex .mrel,
+.formula-scroll .katex .mopen,
+.formula-scroll .katex .mclose,
+.formula-scroll .katex .mpunct,
+.formula-scroll .katex .minner {
+  color: inherit;
 }
 

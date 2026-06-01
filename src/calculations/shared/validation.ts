@@ -11,6 +11,10 @@ export type BreakdownStep = {
   substitution: string
   exact: Decimal
   unit?: string
+  /** LaTeX for the abstract formula (variable names). Rendered by KaTeX when present. */
+  latexFormula?: string
+  /** LaTeX with actual values substituted in. Rendered by KaTeX when present. */
+  latexSubstitution?: string
 }
 
 export function issue(path: string, message: string): ValidationIssue {

@@ -1,54 +1,57 @@
 import { Moon, Sun, Monitor } from 'lucide-react'
 import { useTheme } from '../../hooks/useTheme'
-import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 export function ThemeToggle() {
   const { theme, effectiveTheme, setTheme } = useTheme()
 
   const handleToggle = () => {
-    if (theme === 'system') {
-      setTheme(effectiveTheme === 'dark' ? 'light' : 'dark')
-      return
-    }
-    if (theme === 'light') {
-      setTheme('dark')
-      return
-    }
-    setTheme('system')
+    // Cycle: light → dark → system → light
+    if (theme === 'light') setTheme('dark')
+    else if (theme === 'dark') setTheme('system')
+    else setTheme('light')
   }
+
+  const title =
+    theme === 'light'
+      ? 'Switch to dark mode'
+      : theme === 'dark'
+        ? 'Switch to system preference'
+        : 'Switch to light mode'
 
   const icon =
     theme === 'system' ? (
-      <Monitor className="h-4 w-4" />
+      <Monitor className="h-3.5 w-3.5" aria-hidden="true" />
     ) : effectiveTheme === 'dark' ? (
-      <Moon className="h-4 w-4" />
+      <Moon className="h-3.5 w-3.5" aria-hidden="true" />
     ) : (
-      <Sun className="h-4 w-4" />
+      <Sun className="h-3.5 w-3.5" aria-hidden="true" />
     )
 
-  const title =
-    theme === 'system'
-      ? `Switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode`
-      : theme === 'light'
-        ? 'Switch to dark mode'
-        : 'Switch to system preference'
-
-  const srLabel =
-    theme === 'system'
-      ? `Theme: system (${effectiveTheme}). Activate to switch to ${effectiveTheme === 'dark' ? 'light' : 'dark'} mode.`
-      : `Theme: ${theme}. Activate to ${title.toLowerCase()}.`
-
   return (
-    <Button
+    <button
       type="button"
-      variant="outline"
-      size="icon"
       onClick={handleToggle}
       title={title}
-      aria-label={srLabel}
-      className="h-8 w-8 text-sidebar-foreground border-sidebar-border bg-transparent hover:bg-sidebar-muted lg:text-foreground lg:border-border lg:bg-card lg:hover:bg-secondary"
+      aria-label={title}
+      className={cn(
+        'relative inline-flex h-7 w-14 items-center rounded-full border border-slate-400 bg-slate-300 transition-colors duration-200 ease-in-out',
+        'dark:border-transparent dark:bg-secondary',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
+      )}
     >
-      {icon}
-    </Button>
+      <span className="sr-only">Toggle theme</span>
+      <span
+        className={cn(
+          'pointer-events-none inline-flex h-6 w-6 transform items-center justify-center rounded-full border border-slate-300 bg-white shadow-md transition duration-200 ease-in-out motion-reduce:transition-none',
+          'dark:border-transparent dark:bg-background dark:shadow-lg',
+          effectiveTheme === 'dark' ? 'translate-x-7' : 'translate-x-0.5',
+        )}
+      >
+        <span className="flex items-center justify-center text-slate-700 dark:text-muted-foreground">
+          {icon}
+        </span>
+      </span>
+    </button>
   )
 }

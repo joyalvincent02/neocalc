@@ -1,13 +1,23 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { RouterProvider, createMemoryRouter } from 'react-router-dom'
-import { routes } from './routes'
+import { RouterProvider, createMemoryRouter, type RouteObject } from 'react-router-dom'
 import { DISCLAIMER_TEXT } from '../config/safetyMessages'
 import { ThemeProvider } from '../hooks/useTheme'
+import { DashboardPage } from '../features/dashboard/DashboardPage'
+import { AdditiveCalculatorPage } from '../features/additive-calculator/AdditiveCalculatorPage'
+import { GlucoseCalculatorPage } from '../features/glucose-calculator/GlucoseCalculatorPage'
+import { CombinedBurettePage } from '../features/combined-burette/CombinedBurettePage'
+
+const testRoutes: RouteObject[] = [
+  { path: '/', element: <DashboardPage /> },
+  { path: '/additives', element: <AdditiveCalculatorPage /> },
+  { path: '/glucose', element: <GlucoseCalculatorPage /> },
+  { path: '/combined', element: <CombinedBurettePage /> },
+]
 
 function renderAt(path: string) {
   window.localStorage.removeItem('neocalc.theme')
-  const router = createMemoryRouter(routes, { initialEntries: [path] })
+  const router = createMemoryRouter(testRoutes, { initialEntries: [path] })
   return render(
     <ThemeProvider>
       <RouterProvider router={router} />
@@ -16,17 +26,19 @@ function renderAt(path: string) {
 }
 
 describe('app routing + safety banner', () => {
-  it('shows disclaimer banner on additive page', () => {
+  it('shows disclaimer banner on additive page', async () => {
     renderAt('/additives')
-    expect(screen.getByText('Disclaimer')).toBeInTheDocument()
-    expect(screen.getByText(DISCLAIMER_TEXT)).toBeInTheDocument()
-    expect(screen.getByRole('heading', { name: /additive calculator/i })).toBeInTheDocument()
+    // Routes are lazily loaded — wait for Suspense to resolve
+    expect(await screen.findByText(DISCLAIMER_TEXT)).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /additive calculator/i })).toBeInTheDocument()
   })
 
   it('navigates to glucose page', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
-    await user.click(screen.getByRole('link', { name: /glucose/i }))
+    await user.click(
+      await screen.findByRole('link', { name: /glucose strengthening/i }),
+    )
     expect(
       await screen.findByRole('heading', { name: /glucose strengthening/i }),
     ).toBeInTheDocument()
@@ -35,28 +47,32 @@ describe('app routing + safety banner', () => {
   it('can run a default additive calculation and shows a result', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
-    await user.click(screen.getByRole('button', { name: /calculate/i }))
+    await user.click(await screen.findByRole('button', { name: /calculate/i }))
     expect(
       await screen.findByText(/Final instruction/i),
     ).toBeInTheDocument()
     expect(screen.getByText(/Per 100 mL burette/i)).toBeInTheDocument()
   })
 
-  it('cycles theme and toggles root dark class', async () => {
+  it('cycles theme via the toggle switch', async () => {
     const user = userEvent.setup()
     renderAt('/additives')
 
     const root = document.documentElement
-    const toggle = screen.getByRole('button', { name: /theme:/i })
 
-    // With our test setup: system=light initially, and cycle is system -> dark -> system -> dark ...
+    // Default: system (light in tests per matchMedia mock)
     expect(root.classList.contains('dark')).toBe(false)
 
-    await user.click(toggle) // system -> dark
+    const toggles = await screen.findAllByRole('button', { name: /switch to light mode/i })
+    const toggle = toggles[0]!
+
+    await user.click(toggle) // system → light
+    expect(root.classList.contains('dark')).toBe(false)
+
+    await user.click(toggle) // light → dark
     expect(root.classList.contains('dark')).toBe(true)
 
-    await user.click(toggle) // dark -> system (system light)
+    await user.click(toggle) // dark → system (light in tests)
     expect(root.classList.contains('dark')).toBe(false)
   })
 })
-
